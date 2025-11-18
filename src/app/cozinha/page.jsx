@@ -1,14 +1,7 @@
 import styles from "./cozinha.module.css";
+import KanbanFrame from "@/components/kanbanFrame";
 
 export default function Kitchen() {
-
-  const pedidos = [
-    { id: 1, table: 5, items: [ { name: "Pizza", quantity: 2 }, { name: "Coke", quantity: 1 } ], status: "pendente" },
-    { id: 2, table: 3, items: [ { name: "Burger", quantity: 1 } ], status: "em preparo" },
-    { id: 3, table: 8, items: [ { name: "Pasta", quantity: 1 }, { name: "Wine", quantity: 1 } ], status: "pronto" },
-  ]
-
-
   return (
     <main className={styles.content}>
       <article className={styles.kanbanHeader}>
@@ -22,12 +15,9 @@ export default function Kitchen() {
           <h1 className={styles.titleText}>PRONTOS</h1>
         </section>
       </article>
-      <article className={styles.kanbanFrame}>
-        <div className={styles.kanbanColumnsContainer}></div>
-          <section className={styles.kanbanColumn}></section>
-          <section className={styles.kanbanColumn}></section>
-          <section className={styles.kanbanColumn}></section>
-      </article>
+
+      <KanbanFrame />
+      
     </main>
   );
 }

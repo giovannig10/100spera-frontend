@@ -1,14 +1,14 @@
 .content{
     width: 100vw;
-    height: 95vh;
+    height: calc(100vh - 5rem);
     background-color: aqua;
 }
 
 /* Header do Kanban */
 .kanbanHeader{
     width: 100%;
-    height: 4rem;
-    background-color: blueviolet;
+    height: 6rem;
+    background-color: var(--cor-secundaria);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -23,21 +23,4 @@
 .titleText{
     font-size: 2rem;
     text-align: center;
-}
-
-/* Quadro Kanban */
-.kanbanFrame{
-    width: 100%;
-    height: calc(100% - 4rem);
-    display: flex;
-    background-color: brown;
-}
-.kanbanColumn{
-    width: calc(100% / 3);
-    height: 100%;
-    border-right: 1px solid black;
-    background-color: #E5E5E5;
-}
-.kanbanColumn:last-child{
-    border-right: none;
 }

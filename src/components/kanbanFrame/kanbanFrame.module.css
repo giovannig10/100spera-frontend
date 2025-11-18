@@ -1,0 +1,15 @@
+/* Quadro Kanban */
+.kanbanFrame{
+    width: 100%;
+    height: calc(100% - 6rem);
+    display: flex;
+}
+.kanbanColumn{
+    width: calc(100% / 3);
+    height: 100%;
+    border-right: 4px solid rgba(0, 0, 0, 0.603);
+    background-color: var(--cor-fundo);
+}
+.kanbanColumn:last-child{
+    border-right: none;
+}
