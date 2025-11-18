@@ -1,0 +1,25 @@
+.header {
+    width: 100%;
+    height: 5rem;
+    background-color: var(--cor-primaria);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.logoContent, .titleContent, .vazio {
+    width: 33.3%;
+    height: 100%;
+}
+
+.titleContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--cor-quaternaria);    
+}
+
+
