@@ -1,0 +1,423 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f5f5dc 0%, #e7e7e7 100%);
+}
+
+.content {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  height: calc(100vh - 100px);
+}
+
+.leftPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.legenda {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.legendaTitle {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.legendaItens {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.legendaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.legendaCor {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.legendaCor.ocupada {
+  background-color: #445D43;
+}
+
+.legendaCor.vazia {
+  background-color: #73946b;
+}
+
+.legendaCor.selecionada {
+  background-color: #e7e7e7;
+}
+
+.mapaMesas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  flex: 1;
+}
+
+.mesa {
+  background-color: #445D43;
+  border: none;
+  border-radius: 30px;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #e7e7e7;
+  font-family: inherit;
+}
+
+.mesa:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mesa.vazia {
+  background-color: #73946b;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.mesa.selecionada {
+  background-color: #e7e7e7;
+  color: #445D43;
+  border: 3px solid #445D43;
+  font-weight: 600;
+}
+
+.mesa:disabled {
+  cursor: not-allowed;
+}
+
+.mesaNumero {
+  font-size: 0.95rem;
+}
+
+.mesaValor {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.rightPanel {
+  width: 400px;
+  background-color: #73946b;
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.fechamento {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.fechamentoTitulo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.pedidos {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pedidoItem {
+  font-size: 0.95rem;
+}
+
+.totais {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.subtotal,
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.total {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.totalValor {
+  font-size: 1.5rem;
+}
+
+.taxaContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.taxaLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.taxaCheckbox {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: #e7e7e7;
+}
+
+.taxaValor {
+  font-size: 0.95rem;
+  color: #e7e7e7;
+}
+
+.acoes {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btnFechar,
+.btnCancelar {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btnFechar {
+  background-color: #445D43;
+  color: #e7e7e7;
+}
+
+.btnFechar:hover {
+  background-color: #354a35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnCancelar {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btnCancelar:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.semSelecao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .rightPanel {
+    width: 100%;
+    min-height: 400px;
+  }
+
+  .mapaMesas {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .mapaMesas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .legendaItens {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Modais */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background-color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalTitulo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #445D43;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.modalTexto {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.modalValor {
+  background-color: #e7e7e7;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #445D43;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.modalAcoes {
+  display: flex;
+  gap: 1rem;
+}
+
+.modalBtnConfirmar,
+.modalBtnCancelar,
+.modalBtnOk {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.modalBtnConfirmar {
+  background-color: #445D43;
+  color: white;
+}
+
+.modalBtnConfirmar:hover {
+  background-color: #354a35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modalBtnCancelar {
+  background-color: #e7e7e7;
+  color: #333;
+}
+
+.modalBtnCancelar:hover {
+  background-color: #d0d0d0;
+}
+
+.modalBtnOk {
+  background-color: #73946b;
+  color: white;
+}
+
+.modalBtnOk:hover {
+  background-color: #5f7a58;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modalIcone {
+  width: 64px;
+  height: 64px;
+  background-color: #73946b;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 1rem auto;
+}
