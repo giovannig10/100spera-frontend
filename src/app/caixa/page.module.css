@@ -57,15 +57,15 @@
 }
 
 .legendaCor.ocupada {
-  background-color: #445D43;
+  background-color: var(--cor-primaria);
 }
 
 .legendaCor.vazia {
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
 }
 
 .legendaCor.selecionada {
-  background-color: #e7e7e7;
+  background-color: var(--cor-quinaria);
 }
 
 .mapaMesas {
@@ -76,7 +76,7 @@
 }
 
 .mesa {
-  background-color: #445D43;
+  background-color: var(--cor-primaria);
   border: none;
   border-radius: 30px;
   padding: 1.5rem 1rem;
@@ -87,7 +87,7 @@
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #e7e7e7;
+  color: var(--cor-quinaria);
   font-family: inherit;
   position: relative;
   z-index: 2;
@@ -99,15 +99,15 @@
 }
 
 .mesa.vazia {
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .mesa.selecionada {
-  background-color: #e7e7e7;
-  color: #445D43;
-  border: 3px solid #445D43;
+  background-color: var(--cor-quinaria);
+  color: var(--cor-primaria);
+  border: 3px solid var(--cor-primaria);
   font-weight: 600;
 }
 
@@ -126,7 +126,7 @@
 
 .rightPanel {
   width: 400px;
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
   border-radius: 16px;
   padding: 2rem;
   color: white;
@@ -206,12 +206,12 @@
   width: 24px;
   height: 24px;
   cursor: pointer;
-  accent-color: #e7e7e7;
+  accent-color: var(--cor-quinaria);
 }
 
 .taxaValor {
   font-size: 0.95rem;
-  color: #e7e7e7;
+  color: var(--cor-quinaria);
 }
 
 .acoes {
@@ -234,12 +234,13 @@
 }
 
 .btnFechar {
-  background-color: #445D43;
-  color: #e7e7e7;
+  background-color: var(--cor-primaria);
+  color: var(--cor-quinaria);
 }
 
 .btnFechar:hover {
-  background-color: #354a35;
+  background-color: var(--cor-primaria);
+  opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -338,7 +339,7 @@
 .modalTitulo {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #445D43;
+  color: var(--cor-primaria);
   margin: 0 0 1rem 0;
   text-align: center;
 }
@@ -352,12 +353,12 @@
 }
 
 .modalValor {
-  background-color: #e7e7e7;
+  background-color: var(--cor-quinaria);
   padding: 1rem;
   border-radius: 8px;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #445D43;
+  color: var(--cor-primaria);
   text-align: center;
   margin-bottom: 1.5rem;
 }
@@ -382,18 +383,19 @@
 }
 
 .modalBtnConfirmar {
-  background-color: #445D43;
+  background-color: var(--cor-primaria);
   color: white;
 }
 
 .modalBtnConfirmar:hover {
-  background-color: #354a35;
+  background-color: var(--cor-primaria);
+  opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .modalBtnCancelar {
-  background-color: #e7e7e7;
+  background-color: var(--cor-quinaria);
   color: #333;
 }
 
@@ -402,12 +404,13 @@
 }
 
 .modalBtnOk {
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
   color: white;
 }
 
 .modalBtnOk:hover {
-  background-color: #5f7a58;
+  background-color: var(--cor-secundaria);
+  opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -415,7 +418,7 @@
 .modalIcone {
   width: 64px;
   height: 64px;
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
   color: white;
   border-radius: 50%;
   display: flex;
