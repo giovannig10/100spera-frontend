@@ -58,8 +58,41 @@
 }
 
 .label {
-    color: var(--cor-fundo);
     font-size: 1.2rem;
+    color: var(--cor-sextiaria);
+}
+
+.passwordContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.passwordContainer .input {
+    padding-right: 3rem;
+}
+
+.eyeButton {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--cor-quaternaria);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    transition: color 0.2s;
+}
+
+.eyeButton:hover {
+    color: var(--cor-primaria);
+}
+
+.eyeButton:focus {
+    outline: none;
 }
 
 .input {
@@ -102,7 +135,6 @@
     cursor: pointer;
     outline: none;
     transition: opacity 0.2s;
-    margin-top: 0.5rem;
 }
 
 .button:hover {
@@ -112,6 +144,23 @@
 
 .button:focus {
     outline: none;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.button:disabled:hover {
+    transform: none;
+}
+
+.erro {
+    color: tomato;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 .message {
@@ -196,6 +245,10 @@
     .message {
         font-size: 0.85rem;
         padding: 0 0.5rem;
+    }
+
+    .eyeButton {
+        right: 0.75rem;
     }
 }
 
