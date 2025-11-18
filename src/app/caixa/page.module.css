@@ -1,0 +1,315 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f5f5dc 0%, #d4e7d4 100%);
+}
+
+.header {
+  background-color: #6b8e6b;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  color: white;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  border: 2px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoText {
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin: 0;
+}
+
+.content {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  height: calc(100vh - 100px);
+}
+
+.leftPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.legenda {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.legendaTitle {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #333;
+}
+
+.legendaItens {
+  display: flex;
+  gap: 2rem;
+}
+
+.legendaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.legendaCor {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.legendaCor.ocupada {
+  background-color: #3d5940;
+}
+
+.legendaCor.vazia {
+  background-color: #8ba888;
+}
+
+.legendaCor.selecionada {
+  background-color: #d4e7d4;
+}
+
+.mapaMesas {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  flex: 1;
+}
+
+.mesa {
+  background-color: #3d5940;
+  border: none;
+  border-radius: 30px;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #d4e7d4;
+  font-family: inherit;
+}
+
+.mesa:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.mesa.vazia {
+  background-color: #8ba888;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.mesa.selecionada {
+  background-color: #d4e7d4;
+  color: #3d5940;
+  border: 3px solid #3d5940;
+  font-weight: 600;
+}
+
+.mesa:disabled {
+  cursor: not-allowed;
+}
+
+.mesaNumero {
+  font-size: 0.95rem;
+}
+
+.mesaValor {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.rightPanel {
+  width: 400px;
+  background-color: #6b8e6b;
+  border-radius: 16px;
+  padding: 2rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.fechamento {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.fechamentoTitulo {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.pedidos {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pedidoItem {
+  font-size: 0.95rem;
+}
+
+.totais {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.subtotal,
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.total {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.totalValor {
+  font-size: 1.5rem;
+}
+
+.taxaContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.taxaLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.taxaCheckbox {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: #d4e7d4;
+}
+
+.taxaValor {
+  font-size: 0.95rem;
+  color: #d4e7d4;
+}
+
+.acoes {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btnFechar,
+.btnCancelar {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.btnFechar {
+  background-color: #3d5940;
+  color: #d4e7d4;
+}
+
+.btnFechar:hover {
+  background-color: #2d4430;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnCancelar {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btnCancelar:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.semSelecao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+@media (max-width: 1200px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .rightPanel {
+    width: 100%;
+    min-height: 400px;
+  }
+
+  .mapaMesas {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .mapaMesas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .legendaItens {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
