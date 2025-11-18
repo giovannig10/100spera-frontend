@@ -1,6 +1,6 @@
 import { Nunito } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/header";
+import ConditionalHeader from "@/components/ConditionalHeader";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
       <body className={nunito.variable}>
-        <Header />
+        <ConditionalHeader />
         {children}
       </body>
     </html>
