@@ -25,6 +25,8 @@ export default function CaixaPage() {
 
   const [mesaSelecionada, setMesaSelecionada] = useState(null);
   const [taxaServico, setTaxaServico] = useState(true);
+  const [mostrarModalConfirmacao, setMostrarModalConfirmacao] = useState(false);
+  const [mostrarModalSucesso, setMostrarModalSucesso] = useState(false);
   const [pedidos] = useState([
     { item: 'Hamburguer Clássico', quantidade: 4, preco: 22.00 },
     { item: 'Coca Cola', quantidade: 4, preco: 8.00 },
@@ -52,20 +54,26 @@ export default function CaixaPage() {
 
   const fecharConta = () => {
     if (!mesaSelecionada) return;
-    
-    const confirmacao = confirm(
-      `Fechar conta da Mesa ${mesaSelecionada.numero}?\nTotal: R$${calcularTotal().toFixed(2)}`
-    );
+    setMostrarModalConfirmacao(true);
+  };
 
-    if (confirmacao) {
-      setMesas(mesas.map(mesa => 
-        mesa.id === mesaSelecionada.id 
-          ? { ...mesa, valor: 0, status: 'vazia' }
-          : mesa
-      ));
-      setMesaSelecionada(null);
-      alert('Conta fechada com sucesso!');
-    }
+  const confirmarFechamento = () => {
+    setMesas(mesas.map(mesa => 
+      mesa.id === mesaSelecionada.id 
+        ? { ...mesa, valor: 0, status: 'vazia' }
+        : mesa
+    ));
+    setMostrarModalConfirmacao(false);
+    setMostrarModalSucesso(true);
+  };
+
+  const cancelarFechamento = () => {
+    setMostrarModalConfirmacao(false);
+  };
+
+  const fecharModalSucesso = () => {
+    setMostrarModalSucesso(false);
+    setMesaSelecionada(null);
   };
 
   const cancelar = () => {
@@ -181,6 +189,54 @@ export default function CaixaPage() {
           )}
         </div>
       </div>
+
+      {/* Modal de Confirmação */}
+      {mostrarModalConfirmacao && (
+        <div className={styles.modalOverlay} onClick={cancelarFechamento}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h3 className={styles.modalTitulo}>Confirmar Fechamento</h3>
+            <p className={styles.modalTexto}>
+              Deseja fechar a conta da Mesa {mesaSelecionada?.numero}?
+            </p>
+            <div className={styles.modalValor}>
+              Total: R${calcularTotal().toFixed(2).replace('.', ',')}
+            </div>
+            <div className={styles.modalAcoes}>
+              <button 
+                className={styles.modalBtnConfirmar}
+                onClick={confirmarFechamento}
+              >
+                Confirmar
+              </button>
+              <button 
+                className={styles.modalBtnCancelar}
+                onClick={cancelarFechamento}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Sucesso */}
+      {mostrarModalSucesso && (
+        <div className={styles.modalOverlay} onClick={fecharModalSucesso}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalIcone}>✓</div>
+            <h3 className={styles.modalTitulo}>Conta Fechada!</h3>
+            <p className={styles.modalTexto}>
+              A conta foi fechada com sucesso.
+            </p>
+            <button 
+              className={styles.modalBtnOk}
+              onClick={fecharModalSucesso}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

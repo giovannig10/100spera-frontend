@@ -313,3 +313,139 @@
     gap: 0.5rem;
   }
 }
+
+/* Modais */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background-color: white;
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalTitulo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #3d5940;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.modalTexto {
+  font-size: 1rem;
+  color: #333;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.modalValor {
+  background-color: #f0f0f0;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3d5940;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.modalAcoes {
+  display: flex;
+  gap: 1rem;
+}
+
+.modalBtnConfirmar,
+.modalBtnCancelar,
+.modalBtnOk {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.modalBtnConfirmar {
+  background-color: #3d5940;
+  color: white;
+}
+
+.modalBtnConfirmar:hover {
+  background-color: #2d4430;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modalBtnCancelar {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.modalBtnCancelar:hover {
+  background-color: #d0d0d0;
+}
+
+.modalBtnOk {
+  background-color: #6b8e6b;
+  color: white;
+}
+
+.modalBtnOk:hover {
+  background-color: #5a7a5a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modalIcone {
+  width: 64px;
+  height: 64px;
+  background-color: #6b8e6b;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 1rem auto;
+}
