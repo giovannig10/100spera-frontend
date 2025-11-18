@@ -1,6 +1,6 @@
 .container {
-  min-height: 100vh;
-  background: linear-gradient(to bottom, #f5f5dc 0%, #e7e7e7 100%);
+  min-height: calc(100vh - 80px);
+  background-color: var(--cor-fundo);
 }
 
 .content {
@@ -24,6 +24,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 1;
 }
 
 .legendaTitle {
@@ -87,6 +89,8 @@
   transition: all 0.2s;
   color: #e7e7e7;
   font-family: inherit;
+  position: relative;
+  z-index: 2;
 }
 
 .mesa:hover:not(:disabled) {
