@@ -191,9 +191,14 @@ export default function Home() {
                     ))}
                 </div>
 
-                {/* Painel lateral */}
-                {etapa === 'escolherEstado' && (
+                {/* Painel lateral sempre visível */}
+                {!etapa ? (
+                    <div className={styles.painelVazio}>
+                        <p className={styles.textoVazio}>Selecione uma mesa para começar</p>
+                    </div>
+                ) : etapa === 'escolherEstado' ? (
                     <div className={styles.painelLateral}>
+                        <h3 className={styles.painelTitulo}>Mesa {mesaSelecionada}</h3>
                         <button 
                             className={styles.botaoEstado}
                             onClick={() => handleEstadoClick('ocupada')}
@@ -206,11 +211,8 @@ export default function Home() {
                         >
                             Vazia
                         </button>
-
                     </div>
-                )}
-
-                {etapa === 'pedido' && (
+                ) : etapa === 'pedido' && (
                     <>
                         <div className={styles.painelPedido}>
                             <h3 className={styles.painelTitulo}>Pedido</h3>

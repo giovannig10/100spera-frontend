@@ -1,7 +1,7 @@
 .main {
   background-color: #d0e3c3;
   width: 100%;
-  min-height: 90vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -37,25 +37,25 @@
 
 .ocupada {
   background-color: #445D43;
-  height: 24px;
-  width: 24px;
-  border-radius: 4px;
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
   display: inline-block;
 }
 
 .vazia {
   background-color: #73946b;
-  height: 24px;
-  width: 24px;
-  border-radius: 4px;
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
   display: inline-block;
 }
 
 .selecionada {
   background-color: #e7e7e7;
-  height: 24px;
-  width: 24px;
-  border-radius: 4px;
+  height: 32px;
+  width: 32px;
+  border-radius: 6px;
   display: inline-block;
 }
 
@@ -63,16 +63,19 @@
   display: flex;
   gap: 2rem;
   width: 100%;
-  max-width: 1400px;
-  position: relative;
+  max-width: 1600px;
+  height: calc(100vh - 180px);
+  justify-content: flex-start;
+  padding: 0 2rem;
 }
 
 .mesasGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  width: 100%;
-  max-width: 800px;
+  flex: 0 0 auto;
+  width: fit-content;
+  align-content: start;
 }
 
 .mesaButton {
@@ -90,6 +93,8 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  height: 8rem;
+  width: 15rem;
 }
 
 .mesaButton:hover {
@@ -132,75 +137,97 @@
   font-weight: 600;
 }
 
+/* Painel Vazio */
+.painelVazio {
+  background-color: #73946b;
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  width: 400px;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.textoVazio {
+  color: #666;
+  font-size: 1.1rem;
+  text-align: center;
+  margin: 0;
+}
+
 /* Painel Lateral - Escolher Estado */
 .painelLateral {
-  background-color: #f5f5f5;
-  border-radius: 12px;
+  background-color: #73946b;
+  border-radius: 16px;
   padding: 2rem;
-  width: 300px;
+  width: 400px;
+  min-height: 500px;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  color: white;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .painelTitulo {
-  color: #537d5d;
+  color: white;
   font-size: 1.5rem;
   margin: 0 0 1rem 0;
   text-align: center;
+  font-weight: 600;
 }
 
 .botaoEstado {
-  background-color: #73946b;
-  color: white;
+  background-color: #445D43;
+  color: #e7e7e7;
   border: none;
-  border-radius: 8px;
-  padding: 1rem;
-  font-size: 1rem;
-  font-weight: 500;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .botaoEstado:hover {
-  background-color: #537d5d;
-  transform: scale(1.02);
+  background-color: #354a35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Painel Pedido */
 .painelPedido {
   background-color: #e8dae3;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 2rem;
-  width: 350px;
-  max-height: 80vh;
+  width: 400px;
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  right: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 100;
 }
 
 .botaoAdicionarItem {
-  background-color: #537d5d;
-  color: white;
+  background-color: #445D43;
+  color: #e7e7e7;
   border: none;
   border-radius: 12px;
   padding: 1rem;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .botaoAdicionarItem:hover {
-  background-color: #445d43;
+  background-color: #354a35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .itensPedido {
@@ -210,7 +237,7 @@
 }
 
 .subtitulo {
-  color: #537d5d;
+  color: white;
   font-size: 1rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
@@ -241,11 +268,12 @@
 }
 
 .totalPedido {
-  background-color: #537d5d;
+  background-color: rgba(255, 255, 255, 0.1);
   color: white;
   border-radius: 8px;
   padding: 1rem;
   text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .textoTotal {
@@ -260,8 +288,8 @@
 }
 
 .botaoEnviar {
-  background-color: #537d5d;
-  color: white;
+  background-color: #445D43;
+  color: #e7e7e7;
   border: none;
   border-radius: 8px;
   padding: 1rem;
@@ -272,23 +300,25 @@
 }
 
 .botaoEnviar:hover {
-  background-color: #445d43;
+  background-color: #354a35;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .botaoCancelar {
-  background-color: #9db99a;
+  background-color: transparent;
   color: white;
-  border: none;
+  border: 2px solid white;
   border-radius: 8px;
   padding: 1rem;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .botaoCancelar:hover {
-  background-color: #8aa887;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Abas de Categoria */
@@ -379,21 +409,17 @@
 
 /* Painel de Resumo do Pedido */
 .painelResumo {
-  background-color: #f5f5f5;
-  border-radius: 12px;
+  background-color: #73946b;
+  border-radius: 16px;
   padding: 2rem;
-  width: 320px;
-  max-height: 80vh;
+  width: 400px;
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  right: 400px;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 100;
+  color: white;
 }
 
 /* Modais */
@@ -503,4 +529,236 @@
 
 .modalBtnOk:hover {
   background-color: #445d43;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+  .mesasGrid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 600px;
+  }
+
+  .painelVazio,
+  .painelLateral {
+    width: 320px;
+    right: 1rem;
+  }
+
+  .painelPedido {
+    width: 300px;
+    right: 1rem;
+  }
+
+  .painelResumo {
+    width: 280px;
+    right: 330px;
+  }
+
+  .header {
+    max-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .cores {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mesasGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    max-width: 400px;
+  }
+
+  .mesaButton,
+  .mesaButtonSelecionada {
+    padding: 1rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .mesaNumero {
+    font-size: 0.85rem;
+  }
+
+  .mesaValor {
+    font-size: 1rem;
+  }
+
+  .painelVazio,
+  .painelLateral {
+    position: fixed;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    width: 250px;
+  }
+
+  .botaoEstado {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  .painelPedido {
+    width: 90%;
+    max-width: 350px;
+    right: 50%;
+    transform: translate(50%, -50%);
+    max-height: 70vh;
+  }
+
+  .painelResumo {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-height: 40vh;
+  }
+
+  .abasCategoria {
+    gap: 0.25rem;
+  }
+
+  .aba,
+  .abaAtiva {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .produtoCard {
+    padding: 0.75rem;
+  }
+
+  .produtoImagem {
+    width: 60px;
+    height: 60px;
+  }
+
+  .produtoNome {
+    font-size: 0.95rem;
+  }
+
+  .produtoPreco {
+    font-size: 1rem;
+  }
+
+  .modal {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .modalTitulo {
+    font-size: 1.25rem;
+  }
+
+  .modalTexto {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mesasGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .mesaButton,
+  .mesaButtonSelecionada {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .mesaNumero {
+    font-size: 0.75rem;
+  }
+
+  .mesaValor {
+    font-size: 0.9rem;
+  }
+
+  .painelVazio,
+  .painelLateral {
+    width: 220px;
+  }
+
+  .botaoEstado {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  .painelPedido {
+    width: 95%;
+    max-width: none;
+    padding: 1.5rem;
+  }
+
+  .painelTitulo {
+    font-size: 1.25rem;
+  }
+
+  .abasCategoria {
+    gap: 0.25rem;
+  }
+
+  .aba,
+  .abaAtiva {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .produtoImagem {
+    width: 50px;
+    height: 50px;
+  }
+
+  .produtoNome {
+    font-size: 0.85rem;
+  }
+
+  .produtoPreco {
+    font-size: 0.9rem;
+  }
+
+  .painelResumo {
+    max-height: 35vh;
+    padding: 1rem;
+  }
+
+  .subtitulo {
+    font-size: 0.9rem;
+  }
+
+  .itemTexto {
+    font-size: 0.8rem;
+  }
+
+  .textareaObs {
+    min-height: 60px;
+    font-size: 0.85rem;
+  }
+
+  .textoTotal {
+    font-size: 1.25rem;
+  }
+
+  .botaoEnviar,
+  .botaoCancelar,
+  .botaoAdicionarItem {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
 }
