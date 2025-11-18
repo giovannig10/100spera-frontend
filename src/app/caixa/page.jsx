@@ -4,8 +4,10 @@ import { useState } from 'react';
 import styles from './page.module.css';
 
 export default function CaixaPage() {
+
+  
   const [mesas, setMesas] = useState([
-    { id: 1, numero: 1, valor: 30.00, status: 'vazia' },
+    { id: 1, numero: 1, valor: 30.00, status: 'oxupada' },
     { id: 2, numero: 2, valor: 556.00, status: 'ocupada' },
     { id: 3, numero: 3, valor: 250.00, status: 'ocupada' },
     { id: 4, numero: 4, valor: 100.00, status: 'ocupada' },
