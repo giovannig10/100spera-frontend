@@ -1,0 +1,506 @@
+.main {
+  background-color: #d0e3c3;
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+}
+
+.header {
+  background-color: rgba(255, 255, 255, 0.5);
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 2rem;
+  gap: 0.75rem;
+}
+
+.cores {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.text {
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+.ocupada {
+  background-color: #445D43;
+  height: 24px;
+  width: 24px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.vazia {
+  background-color: #73946b;
+  height: 24px;
+  width: 24px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.selecionada {
+  background-color: #e7e7e7;
+  height: 24px;
+  width: 24px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.contentArea {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1400px;
+  position: relative;
+}
+
+.mesasGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  width: 100%;
+  max-width: 800px;
+}
+
+.mesaButton {
+  background-color: #445D43;
+  color: #d1cfa0;
+  border: none;
+  border-radius: 30px;
+  padding: 1.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.mesaButton:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.mesaOcupada {
+  background-color: #445D43;
+}
+
+.mesaVazia {
+  background-color: #73946b;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.mesaButtonSelecionada {
+  background-color: #e7e7e7;
+  color: #445D43;
+  border: 3px solid #445D43;
+  border-radius: 30px;
+  padding: 1.5rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.mesaNumero {
+  font-size: 0.95rem;
+}
+
+.mesaValor {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Painel Lateral - Escolher Estado */
+.painelLateral {
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.painelTitulo {
+  color: #537d5d;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.botaoEstado {
+  background-color: #73946b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoEstado:hover {
+  background-color: #537d5d;
+  transform: scale(1.02);
+}
+
+/* Painel Pedido */
+.painelPedido {
+  background-color: #e8dae3;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 350px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
+.botaoAdicionarItem {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoAdicionarItem:hover {
+  background-color: #445d43;
+}
+
+.itensPedido {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.subtitulo {
+  color: #537d5d;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  display: block;
+}
+
+.itemTexto {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+}
+
+.observacoes {
+  display: flex;
+  flex-direction: column;
+}
+
+.textareaObs {
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  min-height: 80px;
+  resize: vertical;
+  margin-top: 0.5rem;
+}
+
+.totalPedido {
+  background-color: #537d5d;
+  color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.textoTotal {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.botoesPedido {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.botaoEnviar {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoEnviar:hover {
+  background-color: #445d43;
+}
+
+.botaoCancelar {
+  background-color: #9db99a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoCancelar:hover {
+  background-color: #8aa887;
+}
+
+/* Abas de Categoria */
+.abasCategoria {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.aba {
+  background-color: #9db99a;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.aba:hover {
+  background-color: #8aa887;
+}
+
+.abaAtiva {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Lista de Produtos */
+.produtosLista {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.produtoCard {
+  background-color: #537d5d;
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.produtoCard:hover {
+  background-color: #445d43;
+  transform: scale(1.02);
+}
+
+.produtoImagem {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.produtoInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+}
+
+.produtoNome {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.produtoPreco {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* Painel de Resumo do Pedido */
+.painelResumo {
+  background-color: #f5f5f5;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 320px;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  right: 400px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
+/* Modais */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  min-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.modalIcone {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #537d5d;
+  color: white;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.modalTitulo {
+  color: #537d5d;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.modalTexto {
+  color: #666;
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.modalValor {
+  color: #537d5d;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 1rem 0 1.5rem;
+}
+
+.modalAcoes {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modalBtnConfirmar {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalBtnConfirmar:hover {
+  background-color: #445d43;
+}
+
+.modalBtnCancelar {
+  background-color: #9db99a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalBtnCancelar:hover {
+  background-color: #8aa887;
+}
+
+.modalBtnOk {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 3rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalBtnOk:hover {
+  background-color: #445d43;
+}
