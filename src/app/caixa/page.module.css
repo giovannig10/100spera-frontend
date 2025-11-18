@@ -1,5 +1,5 @@
 .container {
-  min-height: calc(100vh - 80px);
+  min-height: 100vh;
   background-color: var(--cor-fundo);
 }
 
@@ -72,25 +72,23 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
-  flex: 1;
+ 
 }
 
 .mesa {
   background-color: var(--cor-primaria);
   border: none;
   border-radius: 30px;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
   color: var(--cor-quinaria);
   font-family: inherit;
   position: relative;
-  z-index: 2;
 }
 
 .mesa:hover:not(:disabled) {
