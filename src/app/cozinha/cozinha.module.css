@@ -1,7 +1,6 @@
 .content{
     width: 100vw;
     height: calc(100vh - 5rem);
-    background-color: aqua;
 }
 
 /* Header do Kanban */
