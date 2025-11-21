@@ -3,6 +3,7 @@
     width: 100%;
     display: flex;
 }
+
 .kanbanColumn{
     width: calc(100% / 3);
     min-height: calc(100vh - 11rem);
@@ -14,6 +15,7 @@
     padding-top: 2rem;
     padding-bottom: 2rem;
     gap: 1rem;
+    align-items: flex-start;
 }
 .kanbanColumn:last-child{
     border-right: none;

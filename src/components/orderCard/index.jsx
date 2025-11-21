@@ -1,30 +1,93 @@
+"use client";
+
+import { useState } from "react";
 import styles from "./orderCard.module.css";
 
 export default function OrderCard({ order, orderItems }) {
 
-    //receber pedido;
-    // receber items de pedido;
-    // filtrar na tabela de items pedido o id do pedido
+    const orderItem = orderItems.map((oi) => oi.orderId === order.id);
 
-    const orderItem = orderItems.map((oi) => oi.orderId === order.id)
+    const filteredOrderItems = orderItems.filter((item) => item.orderId === order.id);
+
+    const [orderStatus, setOrderStatus] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleStatusChange = async () => {
+         const newStatus = orderStatus + 1;
+        setOrderStatus(newStatus);
+
+        switch (orderStatus) {
+            case 0:
+                order.status = "em preparo";
+                break;
+            case 1:
+                order.status = "pronto";
+                break;
+            case 2:
+                order.status = "entregue";
+                break;
+        }
+        if (orderStatus > 2) {
+            alert("O pedido já foi concluído e entregue.");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const response = await fetch(`http://localhost:4000/100spera/orders/${order.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: order.status,
+                    tableNumber: order.tableNumber,
+                    userId: order.userId
+                }),
+            });
+            if(response.ok){
+                await fetchOrders();
+                const data = await response.json();
+                console.log("Atualizado com sucesso", data);
+            }else if(!response.ok) {
+                throw new Error("Failed to update order status");
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar o status", error);
+        } finally {
+            setIsLoading(false);
+        }
+        console.log(order.status);
+    };
+
     return (
         <div key={order.id} className={styles.card}>
-            <h1 className={styles.orderDetails}>Mesa {order.tableNumber}</h1>
-            {orderItems.map((item) => (
-                <div key={item.id} className={styles.orderItemContainer}>
-                    <div className={styles.itemsBox}>
-                        <p className={`${styles.itemDetails} ${styles.itemQuantity}`}>
-                            -{item.quantity}x
-                        </p>
-                        <p className={`${styles.itemDetails} ${styles.itemDishName}`}>
-                            {item.dish.name}
+            <div className={styles.buttonBar}>
+                <button
+                    className={styles.setStatusButton}
+                    onClick={handleStatusChange}
+                >
+                    {order.status === "pendente" ? "Iniciar" : order.status === "em preparo" ? "Finalizar" : order.status === "pronto" ? "Entregar" : "Concluído"}
+                </button>
+            </div>
+            <div className={styles.contentContainer}>
+                <h1 className={styles.orderDetails}>Mesa {order.tableNumber}</h1>
+                {filteredOrderItems.map((item) => (
+                    <div key={item.id} className={styles.orderItemContainer}>
+                        <div className={styles.itemsBox}>
+                            <p className={`${styles.itemDetails} ${styles.itemQuantity}`}>
+                                -{item.quantity}x
+                            </p>
+                            <p className={`${styles.itemDetails} ${styles.itemDishName}`}>
+                                {item.dish.name}
+                            </p>
+                        </div>
+                        <p className={`${styles.itemDetails} ${styles.itemObservations}`}>
+                            {item.observations}
                         </p>
                     </div>
-                    <p className={`${styles.itemDetails} ${styles.itemObservations}`}>
-                        {item.observations}
-                    </p>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }

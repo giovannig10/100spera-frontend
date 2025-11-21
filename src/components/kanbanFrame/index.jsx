@@ -14,7 +14,7 @@ export default function KanbanFrame() {
   const [orderItems, setOrderItems] = useState([]);
 
   useEffect(() => {
-    async function fetchOrders() {
+    async function fetchData() {
       try {
         const ordersResponse = await axios.get(ordersUrl);
         setOrders(ordersResponse.data);
@@ -26,7 +26,7 @@ export default function KanbanFrame() {
       }
     }
 
-    fetchOrders();
+    fetchData();
   }, []);
 
   return (
@@ -34,11 +34,25 @@ export default function KanbanFrame() {
       <div className={styles.kanbanColumnsContainer}></div>
       <section className={styles.kanbanColumn}>
         {orders.map((order) => (
-          <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+          order.status === "pendente" ?
+            <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+            : null
         ))}
       </section>
-      <section className={styles.kanbanColumn}></section>
-      <section className={styles.kanbanColumn}></section>
+      <section className={styles.kanbanColumn}>
+        {orders.map((order) => (
+          order.status === "em preparo" ?
+            <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+            : null
+        ))}
+      </section>
+      <section className={styles.kanbanColumn}>
+        {orders.map((order) => (
+          order.status === "pronto" ?
+            <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+            : null
+        ))}
+      </section>
     </article>
   );
 }
