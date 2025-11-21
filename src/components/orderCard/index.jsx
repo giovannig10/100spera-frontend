@@ -13,7 +13,19 @@ export default function OrderCard({ order, orderItems }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleStatusChange = async () => {
-         const newStatus = orderStatus + 1;
+        if(order.status === "pendente") {
+            setOrderStatus(1);
+            console.log("entrou no if1");
+        }else if(order.status === "em preparo") {
+            setOrderStatus(2);
+            console.log("entrou no if2");
+        }else if(order.status === "pronto") {
+            setOrderStatus(3);
+            console.log("entrou no if3");
+        }
+
+        const newStatus = orderStatus + 1;
+        
         setOrderStatus(newStatus);
 
         switch (orderStatus) {
@@ -46,17 +58,18 @@ export default function OrderCard({ order, orderItems }) {
                 }),
             });
             if(response.ok){
-                await fetchOrders();
+                window.location.reload();
                 const data = await response.json();
                 console.log("Atualizado com sucesso", data);
             }else if(!response.ok) {
-                throw new Error("Failed to update order status");
+                throw new Error("Falha ao atualizar");
             }
         } catch (error) {
             console.error("Erro ao atualizar o status", error);
         } finally {
             setIsLoading(false);
         }
+        console.log("valor do status:", newStatus);
         console.log(order.status);
     };
 
