@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import styles from "./orderCard.module.css";
 
 export default function OrderCard({ order, orderItems }) {
@@ -13,19 +14,17 @@ export default function OrderCard({ order, orderItems }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleStatusChange = async () => {
-        if(order.status === "pendente") {
+        if (order.status === "pendente") {
             setOrderStatus(1);
-            console.log("entrou no if1");
-        }else if(order.status === "em preparo") {
+        } else if (order.status === "em preparo") {
             setOrderStatus(2);
-            console.log("entrou no if2");
-        }else if(order.status === "pronto") {
+
+        } else if (order.status === "pronto") {
             setOrderStatus(3);
-            console.log("entrou no if3");
         }
 
         const newStatus = orderStatus + 1;
-        
+
         setOrderStatus(newStatus);
 
         switch (orderStatus) {
@@ -57,11 +56,11 @@ export default function OrderCard({ order, orderItems }) {
                     userId: order.userId
                 }),
             });
-            if(response.ok){
-                window.location.reload();
+            if (response.ok) {
+                // window.location.reload();
                 const data = await response.json();
                 console.log("Atualizado com sucesso", data);
-            }else if(!response.ok) {
+            } else if (!response.ok) {
                 throw new Error("Falha ao atualizar");
             }
         } catch (error) {
@@ -80,7 +79,10 @@ export default function OrderCard({ order, orderItems }) {
                     className={styles.setStatusButton}
                     onClick={handleStatusChange}
                 >
-                    {order.status === "pendente" ? "Iniciar" : order.status === "em preparo" ? "Finalizar" : order.status === "pronto" ? "Entregar" : "Concluído"}
+                    {order.status === "pendente" ? 
+                    <Image alt="imagem de iniciar preparo" src="/images/preparar.png" width={40} height={40}></Image> : order.status === "em preparo" ? 
+                    <Image alt="imagem de iniciar preparo" src="/images/finalizar.png" width={40} height={40}></Image> : order.status === "pronto" ?
+                    <Image alt="imagem de iniciar preparo" src="/images/entregar.png" width={40} height={40}></Image> : "Concluído"}
                 </button>
             </div>
             <div className={styles.contentContainer}>

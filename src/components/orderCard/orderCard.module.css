@@ -19,7 +19,7 @@
 .setStatusButton{
     width: 30%;
     height: 100%;
-    background-color: var(--cor-quaternaria);
+    background-color: var(--cor-primaria);
     border: none;
     cursor: pointer;
     z-index: 100;

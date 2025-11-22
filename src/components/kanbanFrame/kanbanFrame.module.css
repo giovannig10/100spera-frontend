@@ -15,7 +15,7 @@
     padding-top: 2rem;
     padding-bottom: 2rem;
     gap: 1rem;
-    align-items: flex-start;
+    align-content: flex-start;
 }
 .kanbanColumn:last-child{
     border-right: none;
