@@ -59,3 +59,34 @@
     font-size: 0.85rem;
     opacity: 60%;
 }
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .buttonBar{
+        height: 2.8rem;
+    }
+    .contentContainer{
+        font-size: 0.8rem;
+    }
+    .orderDetails{
+        font-size: 1.5rem;
+    }
+    .itemObservations{
+        font-size: 0.56rem;
+        opacity: 80%
+    }
+}
+@media (max-width: 767px) {
+    .buttonBar{
+        height: 2.6rem;
+    }
+    .contentContainer{
+        font-size: 0.6rem;
+    }
+    .orderDetails{
+        font-size: 1.2rem;
+    }
+    .itemObservations{
+        font-size: 0.4rem;
+        opacity: 90%
+    }
+}
