@@ -1,0 +1,11 @@
+.columnTitle{
+    width: calc(100% / 3);
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.titleText{
+    font-size: 2rem;
+    text-align: center;
+}

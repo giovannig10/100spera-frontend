@@ -1,21 +1,15 @@
-/* Quadro Kanban */
-.kanbanFrame{
-    width: 100%;
-    display: flex;
-}
-
 .kanbanColumn{
     width: calc(100% / 3);
     min-height: calc(100vh - 11rem);
-    border-right: 4px solid rgba(0, 0, 0, 0.603);
-    display: flex;
-    flex-flow: wrap;
     background-color: var(--cor-fundo);
+    display: flex;
     justify-content: center;
+    align-content: flex-start;
+    flex-flow: wrap;
     padding-top: 2rem;
     padding-bottom: 2rem;
     gap: 1rem;
-    align-content: flex-start;
+    border-right: 4px solid rgba(0, 0, 0, 0.603);
 }
 .kanbanColumn:last-child{
     border-right: none;

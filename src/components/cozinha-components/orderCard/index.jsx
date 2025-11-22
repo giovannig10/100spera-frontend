@@ -48,7 +48,7 @@ export default function OrderCard({ order, orderItems, onUpdate }) {
                     await onUpdate();
                 }
             } else if (!response.ok) {
-                throw new Error("Falha ao atualizar");
+                console.log("Falha ao atualizar");
             }
         } catch (error) {
             console.error("Erro ao atualizar o status", error);
