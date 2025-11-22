@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import styles from "./orderCard.module.css";
 
-export default function OrderCard({ order, orderItems }) {
+export default function OrderCard({ order, orderItems, onUpdate }) {
 
     const orderItem = orderItems.map((oi) => oi.orderId === order.id);
 
@@ -41,9 +41,12 @@ export default function OrderCard({ order, orderItems }) {
                 }),
             });
             if (response.ok) {
-                // window.location.reload();
                 const data = await response.json();
                 console.log("Atualizado com sucesso", data);
+
+                if (onUpdate) {
+                    await onUpdate();
+                }
             } else if (!response.ok) {
                 throw new Error("Falha ao atualizar");
             }
@@ -52,8 +55,6 @@ export default function OrderCard({ order, orderItems }) {
         } finally {
             setIsLoading(false);
         }
-        console.log("valor do status:", newStatus);
-        console.log(order.status);
     };
 
     return (

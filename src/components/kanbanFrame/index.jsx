@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from "./kanbanFrame.module.css";
 import axios from "axios";
 
@@ -13,21 +13,22 @@ export default function KanbanFrame() {
   const [orders, setOrders] = useState([]);
   const [orderItems, setOrderItems] = useState([]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const ordersResponse = await axios.get(ordersUrl);
-        setOrders(ordersResponse.data);
+  const fetchData = useCallback(async () => {
+    try {
+      const ordersResponse = await axios.get(ordersUrl);
+      setOrders(ordersResponse.data);
 
-        const itemsResponse = await axios.get(orderItemsUrl);
-        setOrderItems(itemsResponse.data);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      }
+      const itemsResponse = await axios.get(orderItemsUrl);
+      setOrderItems(itemsResponse.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
     }
-
-    fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    // o eslint fica retornando essa mensagem de erro em vermelho, mas é só um aviso e não compromete a funcionalidade
+  }, [fetchData]);
 
   return (
     <article className={styles.kanbanFrame}>
@@ -35,21 +36,21 @@ export default function KanbanFrame() {
       <section className={styles.kanbanColumn}>
         {orders.map((order) => (
           order.status === "pendente" ?
-            <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+            <OrderCard key={order.id} order={order} orderItems={orderItems} onUpdate={fetchData}/>
             : null
         ))}
       </section>
       <section className={styles.kanbanColumn}>
         {orders.map((order) => (
           order.status === "em preparo" ?
-            <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+            <OrderCard key={order.id} order={order} orderItems={orderItems} onUpdate={fetchData}/>
             : null
         ))}
       </section>
       <section className={styles.kanbanColumn}>
         {orders.map((order) => (
           order.status === "pronto" ?
-            <OrderCard key={order.id} order={order} orderItems={orderItems}/>
+            <OrderCard key={order.id} order={order} orderItems={orderItems} onUpdate={fetchData}/>
             : null
         ))}
       </section>
