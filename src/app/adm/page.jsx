@@ -1,0 +1,128 @@
+"use client";
+
+import styles from "./page.module.css";
+import { useRouter } from 'next/navigation';
+
+const OPCAO = [
+    { id: 'entradas', icon: '🍟', label: 'Entradas' },
+    { id: 'lanches', icon: '🍔', label: 'Lanches' },
+    { id: 'bebidas', icon: '🥤', label: 'Bebidas' },
+    { id: 'sobremesas', icon: '🍨', label: 'Sobremesas' },
+    { id: 'combos', icon: '🍽', label: 'Combos' },
+];
+
+const PRODUTOS = [
+    { id: 1, nome: "Batata Frita com Cheddar e Bacon", preco: "R$ 62,00" },
+    { id: 2, nome: "Onion Rings (Anéis de Cebola)", preco: "R$ 68,20" },
+    { id: 3, nome: "Mozzarella Sticks (Palitos de Muçarela)", preco: "R$ 77,00" },
+    { id: 4, nome: "Super Wings / Chicken Wings", preco: "R$ 82,00" },
+    { id: 5, nome: "Dadinhos de Tapioca", preco: "R$ 18,00" },
+];
+
+const handleCategoryClick = (categoryId) => {
+    console.log(`Categoria selecionada para filtro: ${categoryId}`);
+};
+
+const handleProductAction = (action, productNome) => {
+    console.log(`${action} para o produto: ${productNome}`);
+};
+
+export default function Admin() {
+    const router = useRouter(); 
+
+    const handleTabChange = (path) => {
+        router.push(path);
+    };
+
+    return (
+        <>
+            <div className={styles.principal}>
+                <div className={styles.cardapio}>
+                    <div className={styles.tabs}>
+                        <button 
+                            className={`${styles.tabButton} ${styles.tabActive}`}
+                            onClick={() => handleTabChange('/admin/cardapio')}
+                        >
+                            Cardápio
+                        </button>
+                        <button 
+                            className={styles.tabButton}
+                            onClick={() => handleTabChange('/admin/funcionarios')}
+                        >
+                            Funcionários
+                        </button>
+                    </div>
+
+                    <div className={styles.categorias}>
+                        {OPCAO.map(category => (
+                            <button
+                                key={category.id}
+                                onClick={() => handleCategoryClick(category.id)}
+                                className={styles.categoryButton}
+                                aria-label={`Ver ${category.label}`}
+                            >
+                                <span style={{ fontSize: '2rem' }}>{category.icon}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className={styles.listaProdutos}>
+                        <div className={styles.descricoes}>
+                            <div className={styles.item}>Nome</div>
+                            <div className={styles.item}>Imagem</div>
+                            <div className={styles.item}>Descrição</div>
+                            <div className={styles.item}>Preço</div>
+                            <div className={styles.acao}>Ações</div>
+                        </div>
+
+                        {PRODUTOS.map((produto) => (
+                            <div key={produto.id} className={styles.produtoItem}>
+                                <div className={styles.item}>{produto.nome}</div>
+                                
+                                <div className={styles.item}>
+                                    <div style={{ width: '50px', height: '50px', backgroundColor: '#ccc', borderRadius: '6px' }} />
+                                </div>
+
+                                <div className={styles.item}>
+                                    <button 
+                                        className={`${styles.botaoAcao} ${styles.botaoDescricao}`}
+                                        onClick={() => handleProductAction('Ver descrição', produto.nome)}
+                                    >
+                                        Ver descrição
+                                    </button>
+                                </div>
+
+                                <div className={styles.item}>{produto.preco}</div>
+
+                                <div className={styles.acao}>
+                                    <button 
+                                        className={`${styles.botaoAcao} ${styles.botaoEditar}`}
+                                        onClick={() => handleProductAction('Editar', produto.nome)}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button 
+                                        className={`${styles.botaoAcao} ${styles.botaoExcluir}`}
+                                        onClick={() => handleProductAction('Excluir', produto.nome)}
+                                    >
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>    
+                        ))}
+                    </div>
+                </div>
+                
+                <div className={styles.aside}>
+                    <button 
+                        className={styles.addBotao}
+                        onClick={() => handleProductAction('Adicionar novo', '')}
+                    >
+                        <span>Adicionar</span>
+                        <span className={styles.iconeAdd}>+</span>
+                    </button>
+                </div>
+            </div>
+        </>
+    );
+}
