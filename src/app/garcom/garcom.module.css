@@ -9,52 +9,54 @@
 }
 
 .header {
-  background-color: rgba(255, 255, 255, 0.5);
-  padding: 1rem;
+  background-color: transparent;
+  padding: 0.5rem 1rem;
   border-radius: 8px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
-  margin-bottom: 2rem;
-  gap: 0.75rem;
+  max-width: 1400px;
+  margin-bottom: 1.5rem;
+  gap: 2rem;
 }
 
 .cores {
   display: flex;
   flex-direction: row;
-  gap: 2rem;
+  gap: 1.5rem;
   justify-content: center;
   align-items: center;
 }
 
 .text {
-  color: #333;
+  color: #445D43;
   margin: 0;
   font-weight: 600;
+  font-size: 1rem;
 }
 
 .ocupada {
   background-color: #445D43;
-  height: 32px;
-  width: 32px;
+  height: 24px;
+  width: 50px;
   border-radius: 6px;
   display: inline-block;
 }
 
 .vazia {
-  background-color: #73946b;
-  height: 32px;
-  width: 32px;
+  background-color: #8faa88;
+  height: 24px;
+  width: 50px;
   border-radius: 6px;
   display: inline-block;
 }
 
 .selecionada {
   background-color: #e7e7e7;
-  height: 32px;
-  width: 32px;
+  height: 24px;
+  width: 50px;
   border-radius: 6px;
   display: inline-block;
 }
@@ -63,24 +65,29 @@
   display: flex;
   gap: 2rem;
   width: 100%;
-  max-width: 1600px;
-  height: calc(100vh - 180px);
-  justify-content: flex-start;
-  padding: 0 2rem;
+  max-width: 1400px;
+  height: calc(100vh - 150px);
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .mesasGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 1rem;
   flex: 0 0 auto;
   width: fit-content;
   align-content: start;
+  position: relative;
+  z-index: 2;
 }
 
 .mesaButton {
   background-color: #445D43;
-  color: #d1cfa0;
+  color: #e7e7e7;
   border: none;
   border-radius: 30px;
   padding: 1.5rem 1rem;
@@ -93,8 +100,11 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  height: 8rem;
-  width: 15rem;
+  height: 3.5rem;
+  width: 9rem;
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
 }
 
 .mesaButton:hover {
@@ -102,20 +112,24 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.mesaButton:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 .mesaOcupada {
   background-color: #445D43;
 }
 
 .mesaVazia {
-  background-color: #73946b;
-  cursor: not-allowed;
-  opacity: 0.7;
+  background-color: #8faa88;
+  cursor: pointer;
 }
 
 .mesaButtonSelecionada {
   background-color: #e7e7e7;
   color: #445D43;
-  border: 3px solid #445D43;
+  border: none;
   border-radius: 30px;
   padding: 1.5rem 1rem;
   font-size: 0.95rem;
@@ -126,6 +140,11 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  height: 3.5rem;
+  width: 9rem;
+  position: relative;
+  z-index: 3;
+  pointer-events: auto;
 }
 
 .mesaNumero {
@@ -142,8 +161,8 @@
   background-color: #73946b;
   border-radius: 16px;
   padding: 3rem 2rem;
-  width: 400px;
-  min-height: 500px;
+  width: 350px;
+  min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -152,7 +171,7 @@
 }
 
 .textoVazio {
-  color: #666;
+  color: white;
   font-size: 1.1rem;
   text-align: center;
   margin: 0;
@@ -163,8 +182,8 @@
   background-color: #73946b;
   border-radius: 16px;
   padding: 2rem;
-  width: 400px;
-  min-height: 500px;
+  width: 350px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -203,8 +222,8 @@
   background-color: #e8dae3;
   border-radius: 16px;
   padding: 2rem;
-  width: 400px;
-  max-height: calc(100vh - 200px);
+  width: 350px;
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -248,6 +267,133 @@
   color: #666;
   font-size: 0.9rem;
   margin: 0.3rem 0;
+}
+
+/* Controles de Itens do Pedido */
+.itemPedidoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.itemPedidoInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.itemPreco {
+  color: #537d5d;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.itemPedidoControles {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.btnQuantidade {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnQuantidade:hover {
+  background-color: #445d43;
+  transform: scale(1.1);
+}
+
+.btnQuantidade:active {
+  transform: scale(0.95);
+}
+
+.quantidadeTexto {
+  color: #333;
+  font-weight: 600;
+  font-size: 1rem;
+  min-width: 30px;
+  text-align: center;
+}
+
+.btnRemover {
+  background-color: #d97c7c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+}
+
+.btnRemover:hover {
+  background-color: #c66666;
+  transform: scale(1.1);
+}
+
+.btnRemover:active {
+  transform: scale(0.95);
+}
+
+/* Estados de carregamento e erro */
+.loadingContainer,
+.erroContainer,
+.semProdutos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+  min-height: 200px;
+}
+
+.loadingText,
+.erroText,
+.semProdutosText {
+  color: #666;
+  font-size: 1rem;
+  text-align: center;
+  margin: 0;
+}
+
+.btnRecarregar {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnRecarregar:hover {
+  background-color: #445d43;
+  transform: translateY(-2px);
 }
 
 .observacoes {
@@ -412,8 +558,8 @@
   background-color: #73946b;
   border-radius: 16px;
   padding: 2rem;
-  width: 400px;
-  max-height: calc(100vh - 200px);
+  width: 350px;
+  max-height: calc(100vh - 180px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -429,7 +575,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -443,6 +589,281 @@
   min-width: 400px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   text-align: center;
+}
+
+/* Modal de Estado */
+.modalEstado {
+  background-color: white;
+  border-radius: 16px;
+  padding: 2.5rem;
+  min-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.modalSubtitulo {
+  color: #666;
+  font-size: 1rem;
+  margin: 0.5rem 0 2rem 0;
+}
+
+.botoesEstado {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.botaoEstadoModal {
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1.25rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoEstadoModal:hover {
+  background-color: #445d43;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal de Pedido Grande */
+.modalPedidoGrande {
+  background-color: white;
+  border-radius: 20px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 1200px;
+  max-height: 85vh;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.btnFecharModal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #d97c7c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.btnFecharModal:hover {
+  background-color: #c66666;
+  transform: rotate(90deg);
+}
+
+.modalTituloPedido {
+  color: #445D43;
+  font-size: 1.75rem;
+  margin: 0;
+  text-align: center;
+  font-weight: 700;
+}
+
+.modalConteudo {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.modalProdutos {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow: hidden;
+}
+
+.produtosListaModal {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  overflow-y: auto;
+  padding: 1rem;
+  max-height: calc(85vh - 220px);
+}
+
+.produtoCardModal {
+  background-color: #537d5d;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 180px;
+}
+
+.produtoCardModal:hover {
+  background-color: #445d43;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.produtoImagemModal {
+  width: 100%;
+  height: 120px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.produtoInfoModal {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: white;
+  text-align: center;
+}
+
+.produtoNomeModal {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.produtoPrecoModal {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* Resumo do Pedido no Modal */
+.modalResumo {
+  flex: 1;
+  background-color: #f8f8f8;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 320px;
+  max-width: 400px;
+  overflow: hidden;
+}
+
+.subtituloModal {
+  color: #445D43;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.itensPedidoModal {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 150px;
+  max-height: calc(85vh - 450px);
+}
+
+.itemTextoVazio {
+  color: #999;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 2rem 0;
+  margin: 0;
+}
+
+.observacoesModal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.textareaObsModal {
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.textareaObsModal:focus {
+  outline: none;
+  border-color: #537d5d;
+}
+
+.totalPedidoModal {
+  background-color: #537d5d;
+  color: white;
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.textoTotalModal {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.botoesPedidoModal {
+  display: flex;
+  gap: 1rem;
+}
+
+.botaoEnviarModal {
+  flex: 1;
+  background-color: #537d5d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoEnviarModal:hover {
+  background-color: #445d43;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.botaoCancelarModal {
+  flex: 1;
+  background-color: transparent;
+  color: #d97c7c;
+  border: 2px solid #d97c7c;
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.botaoCancelarModal:hover {
+  background-color: #d97c7c;
+  color: white;
 }
 
 .modalIcone {

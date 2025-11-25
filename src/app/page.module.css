@@ -1,0 +1,271 @@
+.main {
+    background-color: var(--cor-primaria);
+    max-width: 2000px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    padding: 1rem;
+}
+
+.content {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    min-height: 600px;
+    gap: 2rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.logoContent {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.logo {
+    width: 220px;
+    height: auto;
+    margin-bottom: 1rem;
+}
+
+.formsContainer {
+    width: 100%;
+    max-width: 80%;
+    height: auto;
+    padding: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.forms {
+    width: 100%;
+    gap: 2rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    font-size: 1.2rem;
+    color: var(--cor-sextiaria);
+}
+
+.passwordContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.passwordContainer .input {
+    padding-right: 3rem;
+}
+
+.eyeButton {
+    position: absolute;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--cor-quaternaria);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    transition: color 0.2s;
+}
+
+.eyeButton:hover {
+    color: var(--cor-primaria);
+}
+
+.eyeButton:focus {
+    outline: none;
+}
+
+.input {
+    width: 100%;
+    max-width: 550px;
+    height: 45px;
+    border: none;
+    background-color: var(--cor-fundo);
+    padding: 0 1rem;
+    font-size: 1rem;
+    outline: none;
+}
+
+.input::placeholder {
+    color: var(--cor-quaternaria);
+}
+
+.input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--cor-fundo);
+}
+
+.buttonContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.button {
+    width: 50%;
+    min-width: 150px;
+    height: 50px;
+    border: none;
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    transition: opacity 0.2s;
+}
+
+.button:hover {
+    transition: 0.5s;
+    transform: scale(1.07);
+}
+
+.button:focus {
+    outline: none;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.button:disabled:hover {
+    transform: none;
+}
+
+.erro {
+    color: tomato;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.message {
+    margin-top: 0.5rem;
+    color: var(--cor-fundo);
+    text-align: center;
+    font-weight: 100;
+}
+
+@media (max-width: 768px) {
+    .content {
+        width: 95%;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .logoContent {
+        width: 150px;
+        height: 150px;
+    }
+
+    .formsContainer {
+        max-width: 100%;
+    }
+
+    .input {
+        max-width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .label {
+        font-size: 1.1rem;
+    }
+
+    .button {
+        width: 60%;
+        font-size: 1.1rem;
+    }
+
+    .message {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .main {
+        padding: 0.5rem;
+    }
+
+    .content {
+        width: 100%;
+        padding: 1rem;
+        gap: 1rem;
+        min-height: auto;
+    }
+
+    .logoContent {
+        width: 120px;
+        height: 120px;
+    }
+
+    .forms {
+        gap: 1.5rem;
+    }
+
+    .input {
+        height: 40px;
+        font-size: 0.9rem;
+        padding: 0 0.75rem;
+    }
+
+    .label {
+        font-size: 1rem;
+    }
+
+    .button {
+        width: 70%;
+        height: 45px;
+        font-size: 1rem;
+    }
+
+    .message {
+        font-size: 0.85rem;
+        padding: 0 0.5rem;
+    }
+
+    .eyeButton {
+        right: 0.75rem;
+    }
+}
+
+@media (max-width: 360px) {
+    .logoContent {
+        width: 100px;
+        height: 100px;
+    }
+
+    .input {
+        height: 38px;
+        font-size: 0.85rem;
+    }
+
+    .button {
+        width: 80%;
+        height: 42px;
+        font-size: 0.95rem;
+    }
+}

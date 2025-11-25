@@ -1,5 +1,7 @@
 'use client';
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import axios from "axios";
 import styles from "./garcom.module.css";
 
 export default function Home() {
@@ -18,42 +20,97 @@ export default function Home() {
     const [mostrarModalSucesso, setMostrarModalSucesso] = useState(false);
     const [mostrarModalCancelamento, setMostrarModalCancelamento] = useState(false);
     const [mostrarModalAviso, setMostrarModalAviso] = useState(false);
+    const [produtos, setProdutos] = useState({});
+    const [carregando, setCarregando] = useState(true);
+    const [erro, setErro] = useState(null);
 
-    // Produtos por categoria
-    const produtos = {
-        entrada: [
-            { id: 1, nome: 'Bruschetta', preco: 18.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 2, nome: 'Batata Frita', preco: 15.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 3, nome: 'Batata Frita', preco: 15.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 4, nome: 'Batata Frita', preco: 15.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 5, nome: 'Batata Frita', preco: 15.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 6, nome: 'Batata Frita', preco: 15.00, imagem: 'https://via.placeholder.com/80' }
-        ],
-        pratoPrincipal: [
-            { id: 3, nome: 'Hamburguer Clássico', preco: 37.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 4, nome: 'X-Tudo!', preco: 52.00, imagem: 'https://via.placeholder.com/80' }
-        ],
-        bebidas: [
-            { id: 5, nome: 'Coca Cola Zero', preco: 8.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 6, nome: 'Suco Natural', preco: 10.00, imagem: 'https://via.placeholder.com/80' }
-        ],
-        drinks: [
-            { id: 7, nome: 'Caipirinha', preco: 22.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 8, nome: 'Mojito', preco: 25.00, imagem: 'https://via.placeholder.com/80' }
-        ],
-        sobremesas: [
-            { id: 9, nome: 'Brownie', preco: 12.00, imagem: 'https://via.placeholder.com/80' },
-            { id: 10, nome: 'Pudim', preco: 10.00, imagem: 'https://via.placeholder.com/80' }
-        ]
+    // URL da API - ajuste conforme necessário
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+
+    // Carregar produtos ao montar o componente
+    useEffect(() => {
+        carregarProdutos();
+        carregarEstadoMesas();
+    }, []);
+
+    const carregarProdutos = async () => {
+        try {
+            setCarregando(true);
+            const response = await axios.get(`${API_URL}/produtos`);
+            
+            // Organizar produtos por categoria
+            const produtosOrganizados = {
+                entrada: response.data.filter(p => p.categoria === 'entrada'),
+                pratoPrincipal: response.data.filter(p => p.categoria === 'pratoPrincipal' || p.categoria === 'prato_principal'),
+                bebidas: response.data.filter(p => p.categoria === 'bebidas'),
+                drinks: response.data.filter(p => p.categoria === 'drinks'),
+                sobremesas: response.data.filter(p => p.categoria === 'sobremesas')
+            };
+            
+            setProdutos(produtosOrganizados);
+            setErro(null);
+        } catch (error) {
+            console.error('Erro ao carregar produtos:', error);
+            setErro('Erro ao carregar produtos');
+            
+            // Produtos de exemplo caso a API falhe
+            setProdutos({
+                entrada: [
+                    { id: 1, nome: 'Bruschetta', preco: 18.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 2, nome: 'Batata Frita', preco: 15.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 11, nome: 'Coxinha', preco: 12.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 12, nome: 'Pastel', preco: 10.00, imagem: 'https://via.placeholder.com/80' }
+                ],
+                pratoPrincipal: [
+                    { id: 3, nome: 'Hamburguer Clássico', preco: 37.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 4, nome: 'X-Tudo', preco: 52.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 13, nome: 'Picanha', preco: 65.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 14, nome: 'Frango Grelhado', preco: 42.00, imagem: 'https://via.placeholder.com/80' }
+                ],
+                bebidas: [
+                    { id: 5, nome: 'Coca Cola Zero', preco: 8.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 6, nome: 'Suco Natural', preco: 10.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 15, nome: 'Água Mineral', preco: 5.00, imagem: 'https://via.placeholder.com/80' }
+                ],
+                drinks: [
+                    { id: 7, nome: 'Caipirinha', preco: 22.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 8, nome: 'Mojito', preco: 25.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 16, nome: 'Gin Tônica', preco: 28.00, imagem: 'https://via.placeholder.com/80' }
+                ],
+                sobremesas: [
+                    { id: 9, nome: 'Brownie', preco: 12.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 10, nome: 'Pudim', preco: 10.00, imagem: 'https://via.placeholder.com/80' },
+                    { id: 17, nome: 'Sorvete', preco: 15.00, imagem: 'https://via.placeholder.com/80' }
+                ]
+            });
+        } finally {
+            setCarregando(false);
+        }
+    };
+
+    const carregarEstadoMesas = () => {
+        // Carregar estado das mesas do localStorage
+        const estadoSalvo = localStorage.getItem('estadoMesas');
+        if (estadoSalvo) {
+            setEstadoMesa(JSON.parse(estadoSalvo));
+        }
+    };
+
+    const salvarEstadoMesas = (novoEstado) => {
+        localStorage.setItem('estadoMesas', JSON.stringify(novoEstado));
     };
 
     const handleMesaClick = (mesaNumero) => {
+        console.log('Mesa clicada:', mesaNumero);
         setMesaSelecionada(mesaNumero);
         setEtapa('escolherEstado');
     };
 
     const handleEstadoClick = (estado) => {
-        setEstadoMesa({ ...estadoMesa, [mesaSelecionada]: estado });
+        const novoEstado = { ...estadoMesa, [mesaSelecionada]: estado };
+        setEstadoMesa(novoEstado);
+        salvarEstadoMesas(novoEstado);
+        
         if (estado === 'ocupada') {
             setEtapa('pedido');
             setItensPedido([]);
@@ -77,6 +134,23 @@ export default function Home() {
         }
     };
 
+    const handleRemoverItem = (produtoId) => {
+        setItensPedido(itensPedido.filter(item => item.id !== produtoId));
+    };
+
+    const handleAlterarQuantidade = (produtoId, delta) => {
+        setItensPedido(itensPedido.map(item => {
+            if (item.id === produtoId) {
+                const novaQuantidade = item.quantidade + delta;
+                if (novaQuantidade <= 0) {
+                    return null; // Será removido pelo filter
+                }
+                return { ...item, quantidade: novaQuantidade };
+            }
+            return item;
+        }).filter(Boolean));
+    };
+
     const calcularTotal = () => {
         return itensPedido.reduce((total, item) => total + (item.preco * item.quantidade), 0).toFixed(2);
     };
@@ -89,9 +163,29 @@ export default function Home() {
         setMostrarModalConfirmacao(true);
     };
 
-    const confirmarEnvio = () => {
-        setMostrarModalConfirmacao(false);
-        setMostrarModalSucesso(true);
+    const confirmarEnvio = async () => {
+        try {
+            const pedido = {
+                mesa: mesaSelecionada,
+                itens: itensPedido.map(item => ({
+                    produto_id: item.id,
+                    quantidade: item.quantidade,
+                    preco_unitario: item.preco
+                })),
+                observacoes: observacoes,
+                valor_total: parseFloat(calcularTotal()),
+                status: 'pendente'
+            };
+
+            await axios.post(`${API_URL}/pedidos`, pedido);
+            
+            setMostrarModalConfirmacao(false);
+            setMostrarModalSucesso(true);
+        } catch (error) {
+            console.error('Erro ao enviar pedido:', error);
+            alert('Erro ao enviar pedido. Tente novamente.');
+            setMostrarModalConfirmacao(false);
+        }
     };
 
     const cancelarEnvio = () => {
@@ -150,180 +244,212 @@ export default function Home() {
             
             <div className={styles.contentArea}>
                 <div className={styles.mesasGrid}>
-                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                    {Array.from({ length: 24 }, (_, i) => i + 1).map((num) => (
                         <button 
                             key={num} 
                             className={getMesaEstilo(num)}
-                            onClick={() => handleMesaClick(num)}
-                        >
-                            Mesa {num}
-                        </button>
-                    ))}
-                    
-                    {[7, 8, 9, 10, 11, 12].map((num) => (
-                        <button 
-                            key={num} 
-                            className={getMesaEstilo(num)}
-                            onClick={() => handleMesaClick(num)}
-                        >
-                            Mesa {num}
-                        </button>
-                    ))}
-                    
-                    {[13, 14, 15, 16, 17, 18].map((num) => (
-                        <button 
-                            key={num} 
-                            className={getMesaEstilo(num)}
-                            onClick={() => handleMesaClick(num)}
-                        >
-                            Mesa {num}
-                        </button>
-                    ))}
-                    
-                    {[19, 20, 21, 22, 23, 24].map((num) => (
-                        <button 
-                            key={num} 
-                            className={getMesaEstilo(num)}
-                            onClick={() => handleMesaClick(num)}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleMesaClick(num);
+                            }}
+                            type="button"
                         >
                             Mesa {num}
                         </button>
                     ))}
                 </div>
-
-                {/* Painel lateral sempre visível */}
-                {!etapa ? (
-                    <div className={styles.painelVazio}>
-                        <p className={styles.textoVazio}>Selecione uma mesa para começar</p>
-                    </div>
-                ) : etapa === 'escolherEstado' ? (
-                    <div className={styles.painelLateral}>
-                        <h3 className={styles.painelTitulo}>Mesa {mesaSelecionada}</h3>
-                        <button 
-                            className={styles.botaoEstado}
-                            onClick={() => handleEstadoClick('ocupada')}
-                        >
-                            Ocupada
-                        </button>
-                        <button 
-                            className={styles.botaoEstado}
-                            onClick={() => handleEstadoClick('vazia')}
-                        >
-                            Vazia
-                        </button>
-                    </div>
-                ) : etapa === 'pedido' && (
-                    <>
-                        <div className={styles.painelPedido}>
-                            <h3 className={styles.painelTitulo}>Pedido</h3>
-                            
-                            {/* Abas de categoria */}
-                            <div className={styles.abasCategoria}>
-                                <button 
-                                    className={categoriaAtiva === 'entrada' ? styles.abaAtiva : styles.aba}
-                                    onClick={() => setCategoriaAtiva('entrada')}
-                                >
-                                    Entradas
-                                </button>
-                                <button 
-                                    className={categoriaAtiva === 'pratoPrincipal' ? styles.abaAtiva : styles.aba}
-                                    onClick={() => setCategoriaAtiva('pratoPrincipal')}
-                                >
-                                    Prato Principal
-                                </button>
-                                <button 
-                                    className={categoriaAtiva === 'bebidas' ? styles.abaAtiva : styles.aba}
-                                    onClick={() => setCategoriaAtiva('bebidas')}
-                                >
-                                    Bebidas
-                                </button>
-                                <button 
-                                    className={categoriaAtiva === 'drinks' ? styles.abaAtiva : styles.aba}
-                                    onClick={() => setCategoriaAtiva('drinks')}
-                                >
-                                    Drinks
-                                </button>
-                                <button 
-                                    className={categoriaAtiva === 'sobremesas' ? styles.abaAtiva : styles.aba}
-                                    onClick={() => setCategoriaAtiva('sobremesas')}
-                                >
-                                    Sobremesas
-                                </button>
-                            </div>
-
-                            {/* Cards de produtos */}
-                            <div className={styles.produtosLista}>
-                                {produtos[categoriaAtiva].map(produto => (
-                                    <div 
-                                        key={produto.id}
-                                        className={styles.produtoCard}
-                                        onClick={() => handleAdicionarItem(produto)}
-                                    >
-                                        <img 
-                                            src={produto.imagem} 
-                                            alt={produto.nome} 
-                                            className={styles.produtoImagem}
-                                        />
-                                        <div className={styles.produtoInfo}>
-                                            <h4 className={styles.produtoNome}>{produto.nome}</h4>
-                                            <span className={styles.produtoPreco}>R$ {produto.preco.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Painel de Resumo do Pedido */}
-                        <div className={styles.painelResumo}>
-                            <button className={styles.botaoAdicionarItem}>
-                                Adicionar item
-                            </button>
-
-                            <div className={styles.itensPedido}>
-                                <h4 className={styles.subtitulo}>Itens do Pedido</h4>
-                                {itensPedido.length === 0 ? (
-                                    <p className={styles.itemTexto}>Nenhum item adicionado</p>
-                                ) : (
-                                    itensPedido.map(item => (
-                                        <p key={item.id} className={styles.itemTexto}>
-                                            -{item.quantidade}x {item.nome}
-                                        </p>
-                                    ))
-                                )}
-                            </div>
-
-                            <div className={styles.observacoes}>
-                                <label className={styles.subtitulo}>Observações:</label>
-                                <textarea 
-                                    className={styles.textareaObs}
-                                    placeholder="Digite aqui observações..."
-                                    value={observacoes}
-                                    onChange={(e) => setObservacoes(e.target.value)}
-                                />
-                            </div>
-
-                            <div className={styles.totalPedido}>
-                                <span className={styles.textoTotal}>R$ {calcularTotal()}</span>
-                            </div>
-
-                            <div className={styles.botoesPedido}>
-                                <button 
-                                    className={styles.botaoEnviar}
-                                    onClick={handleEnviarCozinha}
-                                >
-                                    Enviar para a cozinha
-                                </button>
-                                <button 
-                                    className={styles.botaoCancelar}
-                                    onClick={handleCancelar}
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    </>
-                )}
             </div>
+
+            {/* Modal de Escolha de Estado */}
+            {etapa === 'escolherEstado' && (
+                <div className={styles.modalOverlay} onClick={() => setEtapa(null)}>
+                    <div className={styles.modalEstado} onClick={(e) => e.stopPropagation()}>
+                        <h3 className={styles.modalTitulo}>Mesa {mesaSelecionada}</h3>
+                        <p className={styles.modalSubtitulo}>Escolha o estado da mesa</p>
+                        <div className={styles.botoesEstado}>
+                            <button 
+                                className={styles.botaoEstadoModal}
+                                onClick={() => handleEstadoClick('ocupada')}
+                            >
+                                Ocupada
+                            </button>
+                            <button 
+                                className={styles.botaoEstadoModal}
+                                onClick={() => handleEstadoClick('vazia')}
+                            >
+                                Vazia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de Pedido */}
+            {etapa === 'pedido' && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalPedidoGrande} onClick={(e) => e.stopPropagation()}>
+                        <button 
+                            className={styles.btnFecharModal}
+                            onClick={handleCancelar}
+                        >
+                            ✕
+                        </button>
+                        
+                        <h3 className={styles.modalTituloPedido}>Mesa {mesaSelecionada} - Fazer Pedido</h3>
+                        
+                        <div className={styles.modalConteudo}>
+                            <div className={styles.modalProdutos}>
+                                {/* Abas de categoria */}
+                                <div className={styles.abasCategoria}>
+                                    <button 
+                                        className={categoriaAtiva === 'entrada' ? styles.abaAtiva : styles.aba}
+                                        onClick={() => setCategoriaAtiva('entrada')}
+                                    >
+                                        Entradas
+                                    </button>
+                                    <button 
+                                        className={categoriaAtiva === 'pratoPrincipal' ? styles.abaAtiva : styles.aba}
+                                        onClick={() => setCategoriaAtiva('pratoPrincipal')}
+                                    >
+                                        Prato Principal
+                                    </button>
+                                    <button 
+                                        className={categoriaAtiva === 'sobremesas' ? styles.abaAtiva : styles.aba}
+                                        onClick={() => setCategoriaAtiva('sobremesas')}
+                                    >
+                                        Sobremesas
+                                    </button>
+                                    <button 
+                                        className={categoriaAtiva === 'bebidas' ? styles.abaAtiva : styles.aba}
+                                        onClick={() => setCategoriaAtiva('bebidas')}
+                                    >
+                                        Bebidas
+                                    </button>
+                                    <button 
+                                        className={categoriaAtiva === 'drinks' ? styles.abaAtiva : styles.aba}
+                                        onClick={() => setCategoriaAtiva('drinks')}
+                                    >
+                                        Drinks
+                                    </button>
+                                </div>
+
+                                {/* Cards de produtos */}
+                                <div className={styles.produtosListaModal}>
+                                    {carregando ? (
+                                        <div className={styles.loadingContainer}>
+                                            <p className={styles.loadingText}>Carregando produtos...</p>
+                                        </div>
+                                    ) : erro ? (
+                                        <div className={styles.erroContainer}>
+                                            <p className={styles.erroText}>{erro}</p>
+                                            <button 
+                                                className={styles.btnRecarregar}
+                                                onClick={carregarProdutos}
+                                            >
+                                                Tentar novamente
+                                            </button>
+                                        </div>
+                                    ) : produtos[categoriaAtiva] && produtos[categoriaAtiva].length > 0 ? (
+                                        produtos[categoriaAtiva].map(produto => (
+                                            <div 
+                                                key={produto.id}
+                                                className={styles.produtoCardModal}
+                                                onClick={() => handleAdicionarItem(produto)}
+                                            >
+                                                <img 
+                                                    src={produto.imagem || 'https://via.placeholder.com/80'} 
+                                                    alt={produto.nome} 
+                                                    className={styles.produtoImagemModal}
+                                                />
+                                                <div className={styles.produtoInfoModal}>
+                                                    <h4 className={styles.produtoNomeModal}>{produto.nome}</h4>
+                                                    <span className={styles.produtoPrecoModal}>R$ {Number(produto.preco).toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className={styles.semProdutos}>
+                                            <p className={styles.semProdutosText}>Nenhum produto disponível nesta categoria</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Painel de Resumo do Pedido */}
+                            <div className={styles.modalResumo}>
+                                <h4 className={styles.subtituloModal}>Itens do Pedido</h4>
+                                
+                                <div className={styles.itensPedidoModal}>
+                                    {itensPedido.length === 0 ? (
+                                        <p className={styles.itemTextoVazio}>Nenhum item adicionado</p>
+                                    ) : (
+                                        itensPedido.map(item => (
+                                            <div key={item.id} className={styles.itemPedidoContainer}>
+                                                <div className={styles.itemPedidoInfo}>
+                                                    <span className={styles.itemTexto}>{item.nome}</span>
+                                                    <span className={styles.itemPreco}>R$ {(item.preco * item.quantidade).toFixed(2)}</span>
+                                                </div>
+                                                <div className={styles.itemPedidoControles}>
+                                                    <button 
+                                                        className={styles.btnQuantidade}
+                                                        onClick={() => handleAlterarQuantidade(item.id, -1)}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span className={styles.quantidadeTexto}>{item.quantidade}</span>
+                                                    <button 
+                                                        className={styles.btnQuantidade}
+                                                        onClick={() => handleAlterarQuantidade(item.id, 1)}
+                                                    >
+                                                        +
+                                                    </button>
+                                                    <button 
+                                                        className={styles.btnRemover}
+                                                        onClick={() => handleRemoverItem(item.id)}
+                                                        title="Remover item"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+
+                                <div className={styles.observacoesModal}>
+                                    <label className={styles.subtituloModal}>Observações:</label>
+                                    <textarea 
+                                        className={styles.textareaObsModal}
+                                        placeholder="Digite aqui observações..."
+                                        value={observacoes}
+                                        onChange={(e) => setObservacoes(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className={styles.totalPedidoModal}>
+                                    <span className={styles.textoTotalModal}>Total: R$ {calcularTotal()}</span>
+                                </div>
+
+                                <div className={styles.botoesPedidoModal}>
+                                    <button 
+                                        className={styles.botaoEnviarModal}
+                                        onClick={handleEnviarCozinha}
+                                    >
+                                        Enviar para a cozinha
+                                    </button>
+                                    <button 
+                                        className={styles.botaoCancelarModal}
+                                        onClick={handleCancelar}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Modal de Aviso - Pedido Vazio */}
             {mostrarModalAviso && (

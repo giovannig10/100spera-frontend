@@ -1,0 +1,162 @@
+.principal {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+}
+
+.cardapio {
+    flex: 1;
+    background-color: #e8f5e9;
+    padding: 1.5rem;
+    overflow-y: auto;
+    position: relative;
+    z-index: 10;
+}
+
+.tabs {
+    display: flex;
+    background-color: #c8e6c9;
+    border-radius: 8px;
+    padding: 0.5rem;
+    max-width: 400px;
+}
+
+.tabButton {
+    padding: 0.5rem 1.5rem;
+    font-weight: 600;
+    color: #1b5e20;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+
+.tabActive {
+    border-bottom: 4px solid #388e3c;
+    background-color: white;
+    border-radius: 4px 4px 0 0;
+}
+
+.categorias {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid #c8e6c9;
+    background-color: #c8e6c9;
+    margin-top: 1rem;
+}
+
+.categoryButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    position: relative;
+    z-index: 2;
+}
+
+.categoryButton:hover {
+    background-color: #a5d6a7; 
+}
+
+.listaProdutos {
+    overflow-x: auto;
+    background-color: #c8e6c9;
+    padding: 1rem;
+    border-radius: 0 0 4px 4px;
+}
+
+.descricoes, .produtoItem {
+    display: grid;
+    grid-template-columns: 3fr 70px 1.5fr 1fr 2fr;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    color: #1b5e20;
+}
+
+.descricoes {
+    font-weight: bold;
+    background-color: #a5d6a7;
+    border-radius: 4px 4px 0 0;
+}
+
+.produtoItem {
+    border-bottom: 1px solid #a5d6a7;
+}
+
+.produtoItem:last-child {
+    border-bottom: none;
+}
+
+.item {
+    padding: 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.acao {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.botaoAcao {
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: none;
+    position: relative;
+    z-index: 2;
+}
+
+.botaoEditar, .botaoDescricao {
+    background-color: #4caf50;
+}
+
+.botaoExcluir {
+    background-color: #f44336;
+}
+
+.aside {
+    background-color: #388e3c;
+    color: white;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2rem;
+    cursor: pointer;
+    height: 100%;
+    position: relative;
+    z-index: 10;
+}
+
+.addBotao {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+    padding: 0;
+    background: transparent;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.0;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+}
+
+.iconeAdd {
+    font-size: 2.0rem;
+    font-weight: 300;
+    line-height: 1.0;
+}

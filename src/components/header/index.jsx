@@ -5,16 +5,17 @@ export default function Header() {
     return (
         <header className={styles.header}>
             <div className={styles.logoContent}>
-                <Image className={styles.logo}
-                src="/logo-100spera.png"
-                alt="Logo 100spera"
-                width={50}
-                height={50}
-            />
+                <Image 
+                    className={styles.logo}
+                    src="/images/logo.png"
+                    alt="Logo 100spera"
+                    fill
+                    quality={95}                    
+                />
             </div>
 
             <div className={styles.titleContent}>
-            <h1 className={styles.title}>100spera</h1>
+                <h1 className={styles.title}>100spera</h1>
             </div>
 
             <div className={styles.vazio}></div>
