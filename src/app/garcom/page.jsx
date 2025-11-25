@@ -24,8 +24,8 @@ export default function Home() {
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
 
-    // URL da API - ajuste conforme necessário
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    // URL da API
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/100spera';
 
     // Carregar produtos ao montar o componente
     useEffect(() => {
@@ -36,22 +36,97 @@ export default function Home() {
     const carregarProdutos = async () => {
         try {
             setCarregando(true);
-            const response = await axios.get(`${API_URL}/produtos`);
+            
+            // Buscar todas as categorias e todos os pratos
+            const [categoriasResponse, pratosResponse] = await Promise.all([
+                axios.get(`${API_URL}/categories`),
+                axios.get(`${API_URL}/dishes`)
+            ]);
+            
+            console.log('Categorias recebidas:', categoriasResponse.data);
+            console.log('Pratos recebidos:', pratosResponse.data);
             
             // Organizar produtos por categoria
             const produtosOrganizados = {
-                entrada: response.data.filter(p => p.categoria === 'entrada'),
-                pratoPrincipal: response.data.filter(p => p.categoria === 'pratoPrincipal' || p.categoria === 'prato_principal'),
-                bebidas: response.data.filter(p => p.categoria === 'bebidas'),
-                drinks: response.data.filter(p => p.categoria === 'drinks'),
-                sobremesas: response.data.filter(p => p.categoria === 'sobremesas')
+                entrada: [],
+                pratoPrincipal: [],
+                bebidas: [],
+                drinks: [],
+                sobremesas: []
             };
+
+            const categorias = Array.isArray(categoriasResponse.data) 
+                ? categoriasResponse.data 
+                : (categoriasResponse.data?.categories || categoriasResponse.data?.data || []);
+
+            const pratos = Array.isArray(pratosResponse.data) 
+                ? pratosResponse.data 
+                : (pratosResponse.data?.dishes || pratosResponse.data?.data || []);
+
+            console.log('Total de categorias:', categorias.length);
+            console.log('Total de pratos:', pratos.length);
+
+            if (!Array.isArray(pratos) || pratos.length === 0) {
+                console.error('Nenhum prato encontrado');
+                throw new Error('Nenhum prato disponível');
+            }
+
+            // Criar mapa de categorias por ID
+            const categoriaMap = {};
+            categorias.forEach(cat => {
+                categoriaMap[cat.id] = (cat.name || cat.nome || '').toLowerCase().trim();
+            });
+
+            console.log('Mapa de categorias:', categoriaMap);
+
+            // Processar cada prato
+            pratos.forEach((prato, index) => {
+                console.log(`Processando prato ${index}:`, prato);
+                
+                const nomeCategoria = categoriaMap[prato.categoryId] || '';
+                
+                const produto = {
+                    id: prato.id || prato._id,
+                    nome: prato.name || prato.nome,
+                    preco: parseFloat(prato.price || prato.preco || 0),
+                    imagem: prato.imageUrl || prato.image || prato.imagem || 'https://via.placeholder.com/80',
+                    descricao: prato.description || prato.descricao || ''
+                };
+
+                console.log(`Prato "${produto.nome}" da categoria "${nomeCategoria}"`);
+
+                // Mapear para as categorias do frontend
+                if (nomeCategoria.includes('entrada') || nomeCategoria === 'entradas') {
+                    produtosOrganizados.entrada.push(produto);
+                } else if (nomeCategoria.includes('prato') || nomeCategoria.includes('principal')) {
+                    produtosOrganizados.pratoPrincipal.push(produto);
+                } else if (nomeCategoria.includes('bebida') && !nomeCategoria.includes('drink')) {
+                    produtosOrganizados.bebidas.push(produto);
+                } else if (nomeCategoria.includes('drink')) {
+                    produtosOrganizados.drinks.push(produto);
+                } else if (nomeCategoria.includes('sobremesa')) {
+                    produtosOrganizados.sobremesas.push(produto);
+                } else {
+                    console.warn(`Categoria não mapeada: "${nomeCategoria}"`);
+                }
+            });
+            
+            console.log('Produtos organizados final:', produtosOrganizados);
+            console.log('Total de produtos por categoria:', {
+                entrada: produtosOrganizados.entrada.length,
+                pratoPrincipal: produtosOrganizados.pratoPrincipal.length,
+                bebidas: produtosOrganizados.bebidas.length,
+                drinks: produtosOrganizados.drinks.length,
+                sobremesas: produtosOrganizados.sobremesas.length
+            });
             
             setProdutos(produtosOrganizados);
             setErro(null);
         } catch (error) {
             console.error('Erro ao carregar produtos:', error);
-            setErro('Erro ao carregar produtos');
+            console.error('Detalhes:', error.response?.data);
+            console.error('Status:', error.response?.status);
+            setErro(`Erro ao carregar produtos: ${error.message}`);
             
             // Produtos de exemplo caso a API falhe
             setProdutos({
@@ -165,25 +240,107 @@ export default function Home() {
 
     const confirmarEnvio = async () => {
         try {
-            const pedido = {
-                mesa: mesaSelecionada,
-                itens: itensPedido.map(item => ({
-                    produto_id: item.id,
-                    quantidade: item.quantidade,
-                    preco_unitario: item.preco
-                })),
-                observacoes: observacoes,
-                valor_total: parseFloat(calcularTotal()),
+            console.log('=== ENVIANDO PEDIDO ===');
+            console.log('Mesa:', mesaSelecionada);
+            console.log('Itens:', itensPedido);
+
+            // Criar apenas o pedido (Order) sem os itens
+            const orderData = {
+                tableNumber: parseInt(mesaSelecionada),
+                userId: 1, // TODO: pegar do usuário logado
                 status: 'pendente'
             };
 
-            await axios.post(`${API_URL}/pedidos`, pedido);
+            console.log('1. Criando Order:', orderData);
+            console.log('URL completa:', `${API_URL}/orders`);
+            
+            try {
+                const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
+                const orderId = orderResponse.data.id;
+                console.log('✓ Order criado com ID:', orderId);
+            } catch (orderError) {
+                console.error('Erro detalhado ao criar Order:');
+                console.error('- Status:', orderError.response?.status);
+                console.error('- Mensagem:', orderError.response?.data);
+                console.error('- Headers:', orderError.response?.headers);
+                
+                // Verificar se é problema de mesa inexistente
+                if (orderError.response?.status === 500) {
+                    throw new Error(`Erro no servidor ao criar pedido.\n\nVerifique se:\n1. A mesa ${mesaSelecionada} existe no banco\n2. O userId 1 existe\n3. O servidor backend está rodando corretamente\n\nErro: ${orderError.response?.data?.error || 'Desconhecido'}`);
+                }
+                throw orderError;
+            }
+            
+            const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
+            const orderId = orderResponse.data.id;
+            console.log('✓ Order criado com ID:', orderId);
+
+            // Tentar criar os OrderItems
+            console.log('2. Tentando criar OrderItems...');
+            let itemsSuccess = 0;
+            let itemsError = 0;
+
+            for (const item of itensPedido) {
+                try {
+                    const orderItemData = {
+                        orderId: orderId,
+                        dishId: parseInt(item.id),
+                        quantity: parseInt(item.quantidade),
+                        observations: item.observacao || observacoes || ''
+                    };
+                    
+                    console.log('Criando OrderItem:', orderItemData);
+                    // Tentar vários possíveis endpoints
+                    let itemCreated = false;
+                    
+                    // Tentar /order-items
+                    try {
+                        await axios.post(`${API_URL}/order-items`, orderItemData);
+                        itemCreated = true;
+                    } catch (err1) {
+                        // Tentar /orderItems
+                        try {
+                            await axios.post(`${API_URL}/orderItems`, orderItemData);
+                            itemCreated = true;
+                        } catch (err2) {
+                            // Tentar /orders/:id/items
+                            try {
+                                await axios.post(`${API_URL}/orders/${orderId}/items`, orderItemData);
+                                itemCreated = true;
+                            } catch (err3) {
+                                console.error('Nenhum endpoint de OrderItems funcionou');
+                            }
+                        }
+                    }
+                    
+                    if (itemCreated) {
+                        itemsSuccess++;
+                    } else {
+                        itemsError++;
+                    }
+                } catch (error) {
+                    console.error('Erro ao criar item:', error);
+                    itemsError++;
+                }
+            }
+
+            console.log(`Items criados: ${itemsSuccess}/${itensPedido.length}`);
+
+            if (itemsError > 0) {
+                alert(`⚠️ ATENÇÃO!\n\nPedido criado (ID: ${orderId}), mas ${itemsError} item(ns) não foi(ram) adicionado(s).\n\nO backend não tem endpoint para criar OrderItems.\n\nVocê precisa:\n1. Criar um endpoint POST /order-items no backend\n2. Ou adicionar os items manualmente no banco de dados.`);
+            }
             
             setMostrarModalConfirmacao(false);
             setMostrarModalSucesso(true);
         } catch (error) {
-            console.error('Erro ao enviar pedido:', error);
-            alert('Erro ao enviar pedido. Tente novamente.');
+            console.error('✗ ERRO AO CRIAR PEDIDO');
+            console.error('Erro completo:', error.response?.data || error);
+            
+            const mensagemErro = error.response?.data?.error 
+                || error.response?.data?.message 
+                || error.message;
+            
+            alert(`Erro ao criar pedido:\n\n${mensagemErro}`);
             setMostrarModalConfirmacao(false);
         }
     };
@@ -212,7 +369,7 @@ export default function Home() {
         setObservacoes('');
     };
 
-    const cancelarCancelamento = () => {
+    const cancelarCancelamento = () => {    
         setMostrarModalCancelamento(false);
     };
 
@@ -381,7 +538,7 @@ export default function Home() {
                                 <h4 className={styles.subtituloModal}>Itens do Pedido</h4>
                                 
                                 <div className={styles.itensPedidoModal}>
-                                    {itensPedido.length === 0 ? (
+                                    {itensPedido.length === 0 ? (   
                                         <p className={styles.itemTextoVazio}>Nenhum item adicionado</p>
                                     ) : (
                                         itensPedido.map(item => (
