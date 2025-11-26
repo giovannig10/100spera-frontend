@@ -2,6 +2,8 @@
 
 import styles from "./page.module.css";
 import { useRouter } from 'next/navigation';
+import Modal from '../../components/modal';
+import { useState } from 'react';
 
 const OPCAO = [
     { id: 'entradas', icon: '🍟', label: 'Entradas' },
@@ -28,24 +30,50 @@ const handleProductAction = (action, productNome) => {
 };
 
 export default function Admin() {
-    const router = useRouter(); 
+    const router = useRouter();
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
     const handleTabChange = (path) => {
         router.push(path);
     };
+
+    const openModal = (action, produto) => {
+        let title = '';
+        let body = '';
+
+        if (action === 'Adicionar novo') {
+            title = 'Adicionar Novo Produto';
+            body = 'Aqui virá o formulário de adição de novo produto.';
+        } else if (action === 'Ver descrição') {
+            title = `Descrição de: ${produto.nome}`;
+            body = `Detalhes e ingredientes completos do produto ${produto.nome}.`;
+        } else if (action === 'Editar') {
+            title = `Editar Produto: ${produto.nome}`;
+            body = 'Aqui virá o formulário de edição do produto.';
+        } else {
+            return;
+        }
+
+        setModalContent({ title, body });
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => setIsModalOpen(false);
 
     return (
         <>
             <div className={styles.principal}>
                 <div className={styles.cardapio}>
                     <div className={styles.tabs}>
-                        <button 
+                        <button
                             className={`${styles.tabButton} ${styles.tabActive}`}
                             onClick={() => handleTabChange('/admin/cardapio')}
                         >
                             Cardápio
                         </button>
-                        <button 
+                        <button
                             className={styles.tabButton}
                             onClick={() => handleTabChange('/admin/funcionarios')}
                         >
@@ -78,15 +106,15 @@ export default function Admin() {
                         {PRODUTOS.map((produto) => (
                             <div key={produto.id} className={styles.produtoItem}>
                                 <div className={styles.item}>{produto.nome}</div>
-                                
+
                                 <div className={styles.item}>
                                     <div style={{ width: '50px', height: '50px', backgroundColor: '#ccc', borderRadius: '6px' }} />
                                 </div>
 
                                 <div className={styles.item}>
-                                    <button 
+                                    <button
                                         className={`${styles.botaoAcao} ${styles.botaoDescricao}`}
-                                        onClick={() => handleProductAction('Ver descrição', produto.nome)}
+                                        onClick={() => openModal('Ver descrição', produto)}
                                     >
                                         Ver descrição
                                     </button>
@@ -95,33 +123,41 @@ export default function Admin() {
                                 <div className={styles.item}>{produto.preco}</div>
 
                                 <div className={styles.acao}>
-                                    <button 
+                                    <button
                                         className={`${styles.botaoAcao} ${styles.botaoEditar}`}
-                                        onClick={() => handleProductAction('Editar', produto.nome)}
+                                        onClick={() => openModal('Editar', produto.nome)}
                                     >
                                         Editar
                                     </button>
-                                    <button 
+                                    <button
                                         className={`${styles.botaoAcao} ${styles.botaoExcluir}`}
                                         onClick={() => handleProductAction('Excluir', produto.nome)}
                                     >
                                         Excluir
                                     </button>
                                 </div>
-                            </div>    
+                            </div>
                         ))}
                     </div>
                 </div>
-                
+
                 <div className={styles.aside}>
-                    <button 
+                    <button
                         className={styles.addBotao}
-                        onClick={() => handleProductAction('Adicionar novo', '')}
+                        onClick={() => openModal('Adicionar novo', '')}
                     >
                         <span>Adicionar</span>
                         <span className={styles.iconeAdd}>+</span>
                     </button>
                 </div>
+                <Modal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                title={modalContent.title}
+            >
+                
+                <p>{modalContent.body}</p>
+            </Modal>
             </div>
         </>
     );
