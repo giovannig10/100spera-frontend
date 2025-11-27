@@ -254,9 +254,11 @@ export default function Home() {
             console.log('1. Criando Order:', orderData);
             console.log('URL completa:', `${API_URL}/orders`);
             
+            let orderId;
+            
             try {
                 const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
-                const orderId = orderResponse.data.id;
+                orderId = orderResponse.data.id;
                 console.log('✓ Order criado com ID:', orderId);
             } catch (orderError) {
                 console.error('Erro detalhado ao criar Order:');
@@ -270,10 +272,6 @@ export default function Home() {
                 }
                 throw orderError;
             }
-            
-            const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
-            const orderId = orderResponse.data.id;
-            console.log('✓ Order criado com ID:', orderId);
 
             // Tentar criar os OrderItems
             console.log('2. Tentando criar OrderItems...');
