@@ -387,7 +387,6 @@ export default function Home() {
       const orderId = orderResponse.data.id;
 
       console.log("✓ Order criado com ID:", orderId);
-//teste
       // PASSO 2: Adicionar os itens ao pedido
       console.log("PASSO 2: Adicionando itens ao pedido...");
 
