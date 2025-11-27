@@ -21,10 +21,6 @@ const PRODUTOS = [
     { id: 5, nome: "Dadinhos de Tapioca", preco: "R$ 18,00" },
 ];
 
-const handleCategoryClick = (categoryId) => {
-    console.log(`Categoria selecionada para filtro: ${categoryId}`);
-};
-
 const handleProductAction = (action, productNome) => {
     console.log(`${action} para o produto: ${productNome}`);
 };
@@ -35,30 +31,42 @@ export default function Admin() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', body: '' });
 
+    const handleCategoryClick = (categoryId) => {
+        router.push(`/cardapio/${categoryId}`);
+    };
+
     const handleTabChange = (path) => {
         router.push(path);
     };
 
     const openModal = (action, produto) => {
-        let title = '';
-        let body = '';
+    let title = '';
+    let body = '';
+    
 
-        if (action === 'Adicionar novo') {
-            title = 'Adicionar Novo Produto';
-            body = 'Aqui virá o formulário de adição de novo produto.';
-        } else if (action === 'Ver descrição') {
-            title = `Descrição de: ${produto.nome}`;
-            body = `Detalhes e ingredientes completos do produto ${produto.nome}.`;
-        } else if (action === 'Editar') {
-            title = `Editar Produto: ${produto.nome}`;
-            body = 'Aqui virá o formulário de edição do produto.';
-        } else {
-            return;
-        }
+    let productData = produto; 
 
-        setModalContent({ title, body });
-        setIsModalOpen(true);
-    };
+    if (action === 'Adicionar novo') {
+        title = 'Adicionar Novo Produto';
+        body = 'teste teste teste - Formulário para novo produto.';
+    } else if (action === 'Ver descrição') {
+        title = `Descrição de: ${produto.nome}`;
+        body = `Detalhes da comida ${produto.nome}.`;
+    } else if (action === 'Editar') {
+        title = `Editar Cardápio: ${produto.nome}`;
+        body = 'teste teste teste - Formulário de edição.';
+    } else {
+        return;
+    }
+
+    setModalContent({ 
+        title, 
+        body, 
+        data: productData,
+        action: action    
+    });
+    setIsModalOpen(true);
+};
 
     const closeModal = () => setIsModalOpen(false);
 
@@ -85,6 +93,7 @@ export default function Admin() {
                         {OPCAO.map(category => (
                             <button
                                 key={category.id}
+
                                 onClick={() => handleCategoryClick(category.id)}
                                 className={styles.categoryButton}
                                 aria-label={`Ver ${category.label}`}
@@ -125,7 +134,7 @@ export default function Admin() {
                                 <div className={styles.acao}>
                                     <button
                                         className={`${styles.botaoAcao} ${styles.botaoEditar}`}
-                                        onClick={() => openModal('Editar', produto.nome)}
+                                        onClick={() => openModal('Editar', produto)}
                                     >
                                         Editar
                                     </button>
@@ -144,20 +153,20 @@ export default function Admin() {
                 <div className={styles.aside}>
                     <button
                         className={styles.addBotao}
-                        onClick={() => openModal('Adicionar novo', '')}
+                        onClick={() => openModal('Adicionar novo', null)}
                     >
                         <span>Adicionar</span>
                         <span className={styles.iconeAdd}>+</span>
                     </button>
                 </div>
                 <Modal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={modalContent.title}
-            >
-                
-                <p>{modalContent.body}</p>
-            </Modal>
+                    isOpen={isModalOpen}
+                    onClose={closeModal}
+                    title={modalContent.title}
+                >
+
+                    <p>{modalContent.body}</p>
+                </Modal>
             </div>
         </>
     );
