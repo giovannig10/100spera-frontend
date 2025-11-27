@@ -373,111 +373,152 @@ export default function Home() {
       console.log("Mesa:", mesaSelecionada);
       console.log("Itens:", itensPedido);
 
-      // Criar apenas o pedido (Order) sem os itens
+      // PASSO 1: Criar apenas o pedido (Order) SEM os itens
       const orderData = {
         tableNumber: parseInt(mesaSelecionada),
-        userId: 1, // TODO: pegar do usuário logado
+        userId: 43, // vitor sampaio (garçom) - TODO: pegar do usuário logado
         status: "pendente",
       };
 
-      console.log("1. Criando Order:", orderData);
-      console.log("URL completa:", `${API_URL}/orders`);
+      console.log("PASSO 1: Criando Order:", orderData);
+      console.log("URL:", `${API_URL}/orders`);
 
-      let orderId;
+      const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
+      const orderId = orderResponse.data.id;
 
-      try {
-        const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
-        orderId = orderResponse.data.id;
-        console.log("✓ Order criado com ID:", orderId);
-      } catch (orderError) {
-        console.error("Erro detalhado ao criar Order:");
-        console.error("- Status:", orderError.response?.status);
-        console.error("- Mensagem:", orderError.response?.data);
-        console.error("- Headers:", orderError.response?.headers);
+      console.log("✓ Order criado com ID:", orderId);
+      // PASSO 2: Adicionar os itens ao pedido
+      console.log("PASSO 2: Adicionando itens ao pedido...");
 
-        // Verificar se é problema de mesa inexistente
-        if (orderError.response?.status === 500) {
-          throw new Error(
-            `Erro no servidor ao criar pedido.\n\nVerifique se:\n1. A mesa ${mesaSelecionada} existe no banco\n2. O userId 1 existe\n3. O servidor backend está rodando corretamente\n\nErro: ${
-              orderError.response?.data?.error || "Desconhecido"
-            }`
-          );
-        }
-        throw orderError;
-      }
-
-      // Tentar criar os OrderItems
-      console.log("2. Tentando criar OrderItems...");
-      let itemsSuccess = 0;
-      let itemsError = 0;
+      const itemsAdicionados = [];
+      const itemsComErro = [];
 
       for (const item of itensPedido) {
-        try {
-          const orderItemData = {
-            orderId: orderId,
-            dishId: parseInt(item.id),
-            quantity: parseInt(item.quantidade),
-            observations: item.observacao || observacoes || "",
-          };
+        const orderItemData = {
+          orderId: parseInt(orderId),
+          dishId: parseInt(item.id),
+          quantity: parseInt(item.quantidade),
+          observations: observacoes || "",
+        };
 
-          console.log("Criando OrderItem:", orderItemData);
-          // Tentar vários possíveis endpoints
-          let itemCreated = false;
+        console.log("Tentando adicionar item:", orderItemData);
 
-          // Tentar /order-items
+        // Tentar diferentes endpoints para criar OrderItems
+        let itemCriado = false;
+        let ultimoErro = null;
+
+        // Tentativa 1: POST /order-items
+        if (!itemCriado) {
           try {
             await axios.post(`${API_URL}/order-items`, orderItemData);
-            itemCreated = true;
-          } catch (err1) {
-            // Tentar /orderItems
-            try {
-              await axios.post(`${API_URL}/orderItems`, orderItemData);
-              itemCreated = true;
-            } catch (err2) {
-              // Tentar /orders/:id/items
-              try {
-                await axios.post(
-                  `${API_URL}/orders/${orderId}/items`,
-                  orderItemData
-                );
-                itemCreated = true;
-              } catch (err3) {
-                console.error("Nenhum endpoint de OrderItems funcionou");
-              }
-            }
+            console.log("✓ Item adicionado via /order-items");
+            itemCriado = true;
+          } catch (err) {
+            ultimoErro = err;
+            console.log("Endpoint /order-items não funcionou");
           }
+        }
 
-          if (itemCreated) {
-            itemsSuccess++;
-          } else {
-            itemsError++;
+        // Tentativa 2: POST /orderItems (sem hífen)
+        if (!itemCriado) {
+          try {
+            await axios.post(`${API_URL}/orderItems`, orderItemData);
+            console.log("✓ Item adicionado via /orderItems");
+            itemCriado = true;
+          } catch (err) {
+            ultimoErro = err;
+            console.log("Endpoint /orderItems não funcionou");
           }
-        } catch (error) {
-          console.error("Erro ao criar item:", error);
-          itemsError++;
+        }
+
+        // Tentativa 3: POST /orders/:id/items
+        if (!itemCriado) {
+          try {
+            await axios.post(
+              `${API_URL}/orders/${orderId}/items`,
+              orderItemData
+            );
+            console.log("✓ Item adicionado via /orders/:id/items");
+            itemCriado = true;
+          } catch (err) {
+            ultimoErro = err;
+            console.log("Endpoint /orders/:id/items não funcionou");
+          }
+        }
+
+        if (itemCriado) {
+          itemsAdicionados.push(item.nome);
+        } else {
+          itemsComErro.push(item.nome);
+          console.error(
+            "✗ Não foi possível adicionar item:",
+            item.nome,
+            ultimoErro
+          );
         }
       }
 
-      console.log(`Items criados: ${itemsSuccess}/${itensPedido.length}`);
+      console.log(
+        `Items adicionados: ${itemsAdicionados.length}/${itensPedido.length}`
+      );
 
-      if (itemsError > 0) {
+      setMostrarModalConfirmacao(false);
+
+      // Mostrar resultado
+      if (itemsComErro.length > 0) {
         alert(
-          `⚠️ ATENÇÃO!\n\nPedido criado (ID: ${orderId}), mas ${itemsError} item(ns) não foi(ram) adicionado(s).\n\nO backend não tem endpoint para criar OrderItems.\n\nVocê precisa:\n1. Criar um endpoint POST /order-items no backend\n2. Ou adicionar os items manualmente no banco de dados.`
+          `⚠️ Pedido criado (ID: ${orderId}), mas com problemas:\n\n` +
+            `✓ Items adicionados: ${itemsAdicionados.length}\n` +
+            `✗ Items com erro: ${itemsComErro.length}\n\n` +
+            `Items não adicionados:\n${itemsComErro.join(", ")}\n\n` +
+            `O backend não possui endpoint para criar OrderItems.\n` +
+            `Você precisa criar esse endpoint no backend.`
         );
       }
 
-      setMostrarModalConfirmacao(false);
       setMostrarModalSucesso(true);
     } catch (error) {
       console.error("✗ ERRO AO CRIAR PEDIDO");
-      console.error("Erro completo:", error.response?.data || error);
+      console.error("Erro completo:", error);
+      console.error("Response data:", error.response?.data);
+      console.error("Response status:", error.response?.status);
 
-      const mensagemErro =
-        error.response?.data?.error ||
-        error.response?.data?.message ||
-        error.message;
+      let mensagemErro = "Erro desconhecido ao criar pedido";
 
-      alert(`Erro ao criar pedido:\n\n${mensagemErro}`);
+      if (error.response) {
+        const errorData = error.response.data;
+        mensagemErro =
+          errorData?.error ||
+          errorData?.message ||
+          `Erro ${error.response.status}: ${error.response.statusText}`;
+
+        if (error.response.status === 404) {
+          mensagemErro =
+            "Endpoint não encontrado. Verifique se o backend está rodando.";
+        } else if (error.response.status === 500) {
+          // Mensagem mais específica para erro 500
+          const erroBackend = errorData?.error || "";
+
+          if (
+            erroBackend.includes("foreign key constraint") ||
+            erroBackend.includes("tableNumber")
+          ) {
+            mensagemErro = `A mesa ${mesaSelecionada} não existe no banco de dados.\n\nSolução: Crie a mesa no banco ou ajuste o número da mesa.`;
+          } else if (erroBackend.includes("userId")) {
+            mensagemErro =
+              "O usuário com ID 1 não existe no banco de dados.\n\nSolução: Crie o usuário ou ajuste o userId no código.";
+          } else {
+            mensagemErro = `Erro no servidor:\n${erroBackend}\n\nVerifique:\n• Mesa ${mesaSelecionada} existe no banco?\n• Usuário ID 1 existe no banco?\n• Backend está configurado corretamente?`;
+          }
+        }
+      } else if (error.request) {
+        mensagemErro =
+          "Servidor não respondeu.\n\nVerifique:\n• Backend está rodando em http://localhost:4000\n• Não há bloqueio de firewall";
+      } else {
+        mensagemErro = error.message;
+      }
+
+      alert(`❌ Erro ao criar pedido:\n\n${mensagemErro}`);
       setMostrarModalConfirmacao(false);
     }
   };
