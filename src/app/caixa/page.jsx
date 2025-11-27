@@ -92,7 +92,7 @@ export default function CaixaPage() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.content}>
+      <div className={`${styles.content} ${mesaSelecionada ? styles.withDrawer : ''}`}>
         <div className={styles.leftPanel}>
           <div className={styles.legenda}>
             <span className={styles.legendaTitle}>Mapa de Mesas</span>
@@ -131,8 +131,9 @@ export default function CaixaPage() {
           </div>
         </div>
 
-        <div className={styles.rightPanel}>
-          {mesaSelecionada ? (
+        {/* Drawer lateral dentro do layout (mapa diminui mas continua visível) */}
+        {mesaSelecionada && (
+          <div className={`${styles.drawer} ${mesaSelecionada ? styles.drawerOpen : ''}`}>
             <div className={styles.fechamento}>
               <h2 className={styles.fechamentoTitulo}>
                 Fechamento da conta - Mesa {mesaSelecionada.numero}
@@ -176,28 +177,26 @@ export default function CaixaPage() {
                   </span>
                 </div>
               </div>
-
-              <div className={styles.acoes}>
-                <button 
-                  className={styles.btnFechar}
-                  onClick={fecharConta}
-                >
-                  Fechar Conta
-                </button>
-                <button 
-                  className={styles.btnCancelar}
-                  onClick={cancelar}
-                >
-                  Cancelar
-                </button>
+              </div>
+              <div className={styles.acoesBelow}>
+                <div className={styles.acoes}>
+                  <button 
+                    className={styles.btnFechar}
+                    onClick={fecharConta}
+                  >
+                    Fechar Conta
+                  </button>
+                  <button 
+                    className={styles.btnCancelar}
+                    onClick={cancelar}
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             </div>
-          ) : (
-            <div className={styles.semSelecao}>
-              <p>Selecione uma mesa ocupada para fechar a conta</p>
-            </div>
-          )}
-        </div>
+        )}
+        {/* Quando nenhuma mesa está selecionada, não renderiza placeholder à direita */}
       </div>
 
       {/* Modal de Confirmação */}
