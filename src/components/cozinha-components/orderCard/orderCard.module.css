@@ -1,7 +1,7 @@
 .card{
-    width: 90%;
-    background-color: var(--cor-terciaria);
-    color: var(--cor-primaria);
+    width: 75%;
+    background-color: var(--cor-quinaria);
+    color: var(--cor-terciaria);
     display: flex;
     flex-direction: column;
     border-radius: 0 0 1rem 1rem;
@@ -46,7 +46,7 @@
 
 .orderItemContainer:nth-child(even){
     background-color: rgba(115, 148, 107, 0.3);
-    color: var(--cor-quaternaria);
+    color: var(--cor-secundaria);
 }
 
 .itemsBox{
@@ -58,6 +58,7 @@
 .itemObservations{
     font-size: 0.85rem;
     opacity: 60%;
+    text-align: center;
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
