@@ -1,5 +1,6 @@
 .kanbanColumn{
     width: calc(100% / 3);
+    min-height: calc(100vh - 9.18rem);
     background-color: var(--cor-fundo);
     display: flex;
     justify-content: center;
