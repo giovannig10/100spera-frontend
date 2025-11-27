@@ -22,13 +22,13 @@
     right: 1.5rem;
     width: 200px;
     height: 80px;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #73946b;
+    color: #445d43;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 1.5rem;
     font-weight: bold;
     padding: 0;
     border: none;
@@ -39,19 +39,12 @@
     border-radius: 4px;
 }
 
-.iconeAdd {
-    font-size: 2.0rem;
-    font-weight: 300;
-    line-height: 1.0;
-}
-
 .tabs {
     display: flex;
-    background-color: #c8e6c9;
+    background-color: #73946b;
     border-radius: 8px;
-    padding: 0.5rem;
-    max-width: 400px;
-    margin-right: 120px;
+    padding: 1.0rem;
+    
 }
 
 .tabButton {
@@ -66,7 +59,7 @@
 }
 
 .tabActive {
-    border-bottom: 4px solid #388e3c;
+    border-bottom: 4px solid #537d5d;
     background-color: white;
     border-radius: 4px 4px 0 0;
 }
@@ -76,7 +69,7 @@
     gap: 1.5rem;
     padding: 1rem;
     border-bottom: 1px solid #c8e6c9;
-    background-color: #c8e6c9;
+    background-color: #9ebc8a;
     margin-top: 1rem;
     overflow-x: auto;
     white-space: nowrap;
@@ -95,12 +88,12 @@
 }
 
 .categoryButton:hover {
-    background-color: #a5d6a7;
+    background-color:#9ebc8a;
 }
 
 .listaProdutos {
     overflow-x: auto;
-    background-color: #c8e6c9;
+    background-color: #9ebc8a;
     padding: 1rem;
     border-radius: 0 0 4px 4px;
 }
@@ -116,12 +109,12 @@
 
 .descricoes {
     font-weight: bold;
-    background-color: #a5d6a7;
+    background-color: #9ebc8a;
     border-radius: 4px 4px 0 0;
 }
 
 .produtoItem {
-    border-bottom: 1px solid #a5d6a7;
+    border-bottom: 1px solid #73946b;;
 }
 
 .produtoItem:last-child {
@@ -154,11 +147,11 @@
 }
 
 .botaoEditar, .botaoDescricao {
-    background-color: #4caf50;
+    background-color: #537d5d;
 }
 
 .botaoExcluir {
-    background-color: #f44336;
+    background-color: #537d5d;
 }
 
 @media (max-width: 768px) {
@@ -199,7 +192,8 @@
         align-items: flex-start;
         padding: 10px;
         margin-bottom: 10px;
-        border: 1px solid #a5d6a7;
+    background-color: #9ebc8a;
+        border: 1px solid ;
         border-radius: 4px;
         border-bottom: none;
     }

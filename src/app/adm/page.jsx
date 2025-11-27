@@ -30,6 +30,8 @@ export default function Admin() {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState({ title: '', body: '' });
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
 
     const handleCategoryClick = (categoryId) => {
         router.push(`/cardapio/${categoryId}`);
@@ -47,7 +49,7 @@ export default function Admin() {
         let productData = produto;
 
         if (action === 'Adicionar novo') {
-            title = 'Adicionar Novo Produto';
+            title = 'Nome';
             body = 'teste teste teste - Formulário para novo produto.';
         } else if (action === 'Ver descrição') {
             title = `Descrição de: ${produto.nome}`;
@@ -69,6 +71,25 @@ export default function Admin() {
     };
 
     const closeModal = () => setIsModalOpen(false);
+
+    const openDeleteModal = (produto) => {
+        setProductToDelete(produto);
+        setIsDeleteModalOpen(true);  
+    };
+
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setProductToDelete(null); 
+    };
+
+    const handleConfirmDelete = () => {
+        if (productToDelete) {
+            console.log(`[AÇÃO REAL] Produto EXCLUÍDO: ${productToDelete.nome}`);
+           
+            
+            closeDeleteModal(); 
+        }
+    };
 
     return (
         <>
@@ -140,7 +161,7 @@ export default function Admin() {
                                     </button>
                                     <button
                                         className={`${styles.botaoAcao} ${styles.botaoExcluir}`}
-                                        onClick={() => handleProductAction('Excluir', produto.nome)}
+                                        onClick={() => openDeleteModal(produto)}
                                     >
                                         Excluir
                                     </button>
@@ -153,8 +174,7 @@ export default function Admin() {
                         className={styles.addBotao}
                         onClick={() => openModal('Adicionar novo', null)}
                     >
-                        <span>Adicionar</span>
-                        <span className={styles.iconeAdd}>+</span>
+                        <span>Adicionar +</span>
                     </button>
                 </div>
 
@@ -165,6 +185,36 @@ export default function Admin() {
                 >
 
                     <p>{modalContent.body}</p>
+                </Modal>
+
+                <Modal
+                    isOpen={isDeleteModalOpen}     
+                    onClose={closeDeleteModal}     
+                    title="⚠️ Confirmação de Exclusão"
+                >
+                    {productToDelete && ( 
+                        <>
+                            <h3>
+                                Tem certeza que deseja excluir o produto: 
+                                ➡️{productToDelete.nome}?
+                            </h3>
+                            
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                <button 
+                                    onClick={handleConfirmDelete} 
+                                    style={{ backgroundColor: '#d0e3c3', color: 'white', padding: '10px', border: 'none', cursor: 'pointer', borderRadius: '4px' }}
+                                >
+                                    ✅ Confirmar
+                                </button>
+                                <button 
+                                    onClick={closeDeleteModal} 
+                                    style={{ padding: '10px', border: '1px solid #d0e3c3', cursor: 'pointer', borderRadius: '4px', backgroundColor: '#eee' }}
+                                >
+                                    ❌ Cancelar
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </Modal>
             </div>
         </>
