@@ -579,7 +579,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .modal {
@@ -644,6 +648,10 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  z-index: 10000;
+  margin: auto;
 }
 
 .btnFecharModal {
@@ -952,7 +960,90 @@
   background-color: #445d43;
 }
 
-/* Responsividade */
+
+/* Notebooks (1024px - 1366px) - CORREÇÃO PARA MODAL */
+@media (min-width: 1024px) and (max-width: 1366px) {
+  .modalPedidoGrande {
+    width: 90%;
+    max-width: 1100px;
+    max-height: 82vh;
+    padding: 1.75rem;
+  }
+
+  .modalTituloPedido {
+    font-size: 1.6rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .modalConteudo {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .modalProdutos {
+    flex: 1.5;
+  }
+
+  .produtosListaModal {
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.875rem;
+    max-height: calc(82vh - 220px);
+    padding: 0.875rem;
+  }
+
+  .produtoCardModal {
+    min-height: 165px;
+    padding: 0.875rem;
+  }
+
+  .produtoImagemModal {
+    height: 105px;
+  }
+
+  .produtoNomeModal {
+    font-size: 0.95rem;
+  }
+
+  .produtoPrecoModal {
+    font-size: 1.05rem;
+  }
+
+  .modalResumo {
+    flex: 1;
+    min-width: 280px;
+    max-width: 320px;
+    padding: 1.5rem;
+  }
+
+  .subtituloModal {
+    font-size: 1.05rem;
+  }
+
+  .itensPedidoModal {
+    max-height: calc(82vh - 420px);
+    min-height: 180px;
+  }
+
+  .textareaObsModal {
+    min-height: 75px;
+    font-size: 0.875rem;
+  }
+
+  .totalPedidoModal {
+    padding: 0.875rem;
+  }
+
+  .textoTotalModal {
+    font-size: 1.4rem;
+  }
+
+  .botaoEnviarModal,
+  .botaoCancelarModal {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 1200px) {
   .mesasGrid {
     grid-template-columns: repeat(3, 1fr);
@@ -977,6 +1068,103 @@
 
   .header {
     max-width: 900px;
+  }
+
+  /* Modal para notebooks menores */
+  .modalPedidoGrande {
+    width: 88%;
+    max-width: 950px;
+    max-height: 80vh;
+  }
+
+  .modalConteudo {
+    flex-direction: row;
+    gap: 1.25rem;
+  }
+
+  .produtosListaModal {
+    grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+    max-height: calc(80vh - 210px);
+  }
+
+  .produtoCardModal {
+    min-height: 155px;
+  }
+
+  .produtoImagemModal {
+    height: 95px;
+  }
+
+  .modalResumo {
+    min-width: 260px;
+    max-width: 300px;
+  }
+
+  .itensPedidoModal {
+    max-height: calc(80vh - 410px);
+  }
+}
+
+/* Tablets e notebooks pequenos (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .modalPedidoGrande {
+    width: 90%;
+    max-width: 900px;
+    max-height: 78vh;
+  }
+
+  .produtosListaModal {
+    grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+    max-height: calc(78vh - 200px);
+  }
+
+  .produtoCardModal {
+    min-height: 150px;
+  }
+
+  .produtoImagemModal {
+    height: 90px;
+  }
+
+  .modalResumo {
+    min-width: 250px;
+    max-width: 280px;
+  }
+
+  .itensPedidoModal {
+    max-height: calc(78vh - 400px);
+  }
+}
+
+/* Tablets (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .modalPedidoGrande {
+    width: 92%;
+    max-width: 750px;
+    max-height: 85vh;
+  }
+
+  .modalConteudo {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .produtosListaModal {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    max-height: 320px;
+  }
+
+  .produtoCardModal {
+    min-height: 145px;
+  }
+
+  .modalResumo {
+    max-width: 100%;
+    min-width: auto;
+  }
+
+  .itensPedidoModal {
+    max-height: 180px;
   }
 }
 
@@ -1089,6 +1277,86 @@
   .modalTexto {
     font-size: 0.9rem;
   }
+
+  /* Modal de pedido para mobile médio */
+  .modalPedidoGrande {
+    width: 95%;
+    max-width: 100%;
+    max-height: 90vh;
+    padding: 1.25rem;
+  }
+
+  .btnFecharModal {
+    width: 36px;
+    height: 36px;
+    font-size: 1.35rem;
+  }
+
+  .modalTituloPedido {
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .modalConteudo {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .produtosListaModal {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    max-height: 280px;
+  }
+
+  .produtoCardModal {
+    min-height: 140px;
+    padding: 0.75rem;
+  }
+
+  .produtoImagemModal {
+    height: 85px;
+  }
+
+  .produtoNomeModal {
+    font-size: 0.875rem;
+  }
+
+  .produtoPrecoModal {
+    font-size: 0.975rem;
+  }
+
+  .modalResumo {
+    max-width: 100%;
+    min-width: auto;
+    padding: 1rem;
+  }
+
+  .subtituloModal {
+    font-size: 1rem;
+  }
+
+  .itensPedidoModal {
+    max-height: 160px;
+  }
+
+  .textareaObsModal {
+    min-height: 65px;
+  }
+
+  .textoTotalModal {
+    font-size: 1.3rem;
+  }
+
+  .botoesPedidoModal {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .botaoEnviarModal,
+  .botaoCancelarModal {
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1181,5 +1449,132 @@
   .botaoAdicionarItem {
     padding: 0.75rem;
     font-size: 0.9rem;
+  }
+}
+
+/* Media queries para altura de tela - IMPORTANTES PARA NOTEBOOKS */
+
+/* Notebooks com tela de altura pequena (768px altura ou menos) */
+@media (max-height: 768px) {
+  .modalPedidoGrande {
+    max-height: 90vh;
+    padding: 1.25rem;
+  }
+
+  .modalTituloPedido {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .produtosListaModal {
+    max-height: calc(90vh - 250px);
+  }
+
+  .itensPedidoModal {
+    max-height: calc(90vh - 450px);
+    min-height: 120px;
+  }
+
+  .textareaObsModal {
+    min-height: 60px;
+  }
+}
+
+/* Notebooks com tela ainda menor (700px altura ou menos) */
+@media (max-height: 700px) {
+  .modalPedidoGrande {
+    max-height: 95vh;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .modalTituloPedido {
+    font-size: 1.3rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .btnFecharModal {
+    width: 32px;
+    height: 32px;
+    font-size: 1.25rem;
+  }
+
+  .modalConteudo {
+    gap: 1rem;
+  }
+
+  .produtosListaModal {
+    max-height: calc(95vh - 230px);
+    padding: 0.5rem;
+  }
+
+  .produtoCardModal {
+    min-height: 140px;
+    padding: 0.75rem;
+  }
+
+  .produtoImagemModal {
+    height: 85px;
+  }
+
+  .modalResumo {
+    padding: 1rem;
+  }
+
+  .itensPedidoModal {
+    max-height: calc(95vh - 430px);
+    min-height: 100px;
+  }
+
+  .textareaObsModal {
+    min-height: 50px;
+    font-size: 0.85rem;
+  }
+
+  .totalPedidoModal {
+    padding: 0.75rem;
+  }
+
+  .textoTotalModal {
+    font-size: 1.25rem;
+  }
+
+  .botaoEnviarModal,
+  .botaoCancelarModal {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Telas muito baixas - Ajuste extremo */
+@media (max-height: 600px) {
+  .modalPedidoGrande {
+    max-height: 98vh;
+    padding: 0.75rem;
+  }
+
+  .modalTituloPedido {
+    font-size: 1.2rem;
+  }
+
+  .produtosListaModal {
+    max-height: calc(98vh - 210px);
+  }
+
+  .produtoCardModal {
+    min-height: 120px;
+  }
+
+  .produtoImagemModal {
+    height: 70px;
+  }
+
+  .itensPedidoModal {
+    max-height: calc(98vh - 400px);
+    min-height: 80px;
+  }
+
+  .textareaObsModal {
+    min-height: 40px;
   }
 }
