@@ -40,33 +40,33 @@ export default function Admin() {
     };
 
     const openModal = (action, produto) => {
-    let title = '';
-    let body = '';
-    
+        let title = '';
+        let body = '';
 
-    let productData = produto; 
 
-    if (action === 'Adicionar novo') {
-        title = 'Adicionar Novo Produto';
-        body = 'teste teste teste - Formulário para novo produto.';
-    } else if (action === 'Ver descrição') {
-        title = `Descrição de: ${produto.nome}`;
-        body = `Detalhes da comida ${produto.nome}.`;
-    } else if (action === 'Editar') {
-        title = `Editar Cardápio: ${produto.nome}`;
-        body = 'teste teste teste - Formulário de edição.';
-    } else {
-        return;
-    }
+        let productData = produto;
 
-    setModalContent({ 
-        title, 
-        body, 
-        data: productData,
-        action: action    
-    });
-    setIsModalOpen(true);
-};
+        if (action === 'Adicionar novo') {
+            title = 'Adicionar Novo Produto';
+            body = 'teste teste teste - Formulário para novo produto.';
+        } else if (action === 'Ver descrição') {
+            title = `Descrição de: ${produto.nome}`;
+            body = `Detalhes da comida ${produto.nome}.`;
+        } else if (action === 'Editar') {
+            title = `Editar Cardápio: ${produto.nome}`;
+            body = 'teste teste teste - Formulário de edição.';
+        } else {
+            return;
+        }
+
+        setModalContent({
+            title,
+            body,
+            data: productData,
+            action: action
+        });
+        setIsModalOpen(true);
+    };
 
     const closeModal = () => setIsModalOpen(false);
 
@@ -148,9 +148,7 @@ export default function Admin() {
                             </div>
                         ))}
                     </div>
-                </div>
 
-                <div className={styles.aside}>
                     <button
                         className={styles.addBotao}
                         onClick={() => openModal('Adicionar novo', null)}
@@ -159,6 +157,7 @@ export default function Admin() {
                         <span className={styles.iconeAdd}>+</span>
                     </button>
                 </div>
+
                 <Modal
                     isOpen={isModalOpen}
                     onClose={closeModal}
