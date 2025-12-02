@@ -75,6 +75,7 @@ export default function Home() {
         bebidas: [],
         drinks: [],
         sobremesas: [],
+        combos: [],
       };
 
       const categorias = Array.isArray(categoriasResponse.data)
@@ -95,12 +96,17 @@ export default function Home() {
         throw new Error("Nenhum prato disponível");
       }
 
-      // Criar mapa de categorias por ID
+      // Criar mapa de categorias por ID (normalizando nomes do seed)
+      const normalize = (s = "") =>
+        String(s)
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/\p{Diacritic}/gu, "")
+          .replace(/\s+/g, "");
+
       const categoriaMap = {};
       categorias.forEach((cat) => {
-        categoriaMap[cat.id] = (cat.name || cat.nome || "")
-          .toLowerCase()
-          .trim();
+        categoriaMap[cat.id] = normalize(cat.name || cat.nome || "");
       });
 
       console.log("Mapa de categorias:", categoriaMap);
@@ -125,18 +131,15 @@ export default function Home() {
 
         console.log(`Prato "${produto.nome}" da categoria "${nomeCategoria}"`);
 
-        // Mapear para as categorias do frontend
-        if (nomeCategoria.includes("entrada") || nomeCategoria === "entradas") {
+        // Mapear para as categorias do frontend (usando nomes normalizados)
+        // nomes esperados no seed: Entrada, Pratos Principais, Sobremesas, Bebidas, drinks, combos
+        if (nomeCategoria.includes("entrada")) {
           produtosOrganizados.entrada.push(produto);
-        } else if (
-          nomeCategoria.includes("prato") ||
-          nomeCategoria.includes("principal")
-        ) {
+        } else if (nomeCategoria.includes("combo")) {
+          produtosOrganizados.combos.push(produto);
+        } else if (nomeCategoria.includes("prato") || nomeCategoria.includes("principal") || nomeCategoria.includes("pratos")) {
           produtosOrganizados.pratoPrincipal.push(produto);
-        } else if (
-          nomeCategoria.includes("bebida") &&
-          !nomeCategoria.includes("drink")
-        ) {
+        } else if (nomeCategoria.includes("bebida") && !nomeCategoria.includes("drink")) {
           produtosOrganizados.bebidas.push(produto);
         } else if (nomeCategoria.includes("drink")) {
           produtosOrganizados.drinks.push(produto);
@@ -275,6 +278,20 @@ export default function Home() {
             id: 17,
             nome: "Sorvete",
             preco: 15.0,
+            imagem: "https://via.placeholder.com/80",
+          },
+        ],
+        combos: [
+          {
+            id: 18,
+            nome: "Combo Hambúrguer + Batata",
+            preco: 55.0,
+            imagem: "https://via.placeholder.com/80",
+          },
+          {
+            id: 19,
+            nome: "Combo Picanha 2 Pessoas",
+            preco: 120.0,
             imagem: "https://via.placeholder.com/80",
           },
         ],
@@ -672,6 +689,14 @@ export default function Home() {
                     onClick={() => setCategoriaAtiva("sobremesas")}
                   >
                     Sobremesas
+                  </button>
+                  <button
+                    className={
+                      categoriaAtiva === "combos" ? styles.abaAtiva : styles.aba
+                    }
+                    onClick={() => setCategoriaAtiva("combos")}
+                  >
+                    Combos
                   </button>
                   <button
                     className={
