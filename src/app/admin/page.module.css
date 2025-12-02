@@ -1,0 +1,79 @@
+.main {
+    padding: 50px;
+    background-color: var(--cor-fundo);
+    min-height: 852.5px;
+    max-width: 2000px;
+    display: flex;
+    justify-content: center;
+}
+
+.dashboardContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 30px;
+    width: 1720px;
+    height: 760px;
+    background-color: aqua;
+}
+
+.dashboard {
+    width: 70%;
+    height: 760px;
+    background-color: black;
+}
+
+.titleDiv {
+    width: 100%;
+    height: 100px;
+    background-color: var(--cor-quaternaria);
+    display: flex;
+    align-items: center;
+    padding-left: 32px;
+    gap: 64px;
+    font-size: 12px;
+}
+
+.title {
+    color: var(--cor-primaria);
+    border-bottom: 3px solid lightgray;
+}
+
+.button {
+    width: 350px;
+    height: 100px;
+    background-color: var(--cor-quaternaria);
+    border: none;
+    border-radius: 2px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-right: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.buttonAdicionar {
+    width: 100%;
+    height: 100%;
+    background: none;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.buttonText {
+    color: var(--cor-primaria);
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.emoji {
+    font-size: 34px;
+    color: var(--cor-primaria);
+}
