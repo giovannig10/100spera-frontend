@@ -161,100 +161,233 @@ export default function CaixaPage() {
     if (!mesaSelecionada) return;
     
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
     
-    // Configurações do PDF
+    // Configurações de margens e cores
     const margemEsquerda = 20;
+    const margemDireita = 20;
+    const larguraUtil = pageWidth - margemEsquerda - margemDireita;
     let yPosition = 20;
     
-    // Cabeçalho
-    doc.setFontSize(20);
-    doc.text('RECIBO DE PAGAMENTO', margemEsquerda, yPosition);
+    // Cores do site 100SPERA
+    const corPrimaria = [68, 93, 66]; // Verde primário #445d42
+    const corSecundaria = [83, 125, 93]; // Verde secundário #537d5d
+    const corTerciaria = [103, 139, 102]; // Verde terciário #678b66
+    const corQuinaria = [158, 188, 138]; // Verde claro #9ebc8a
+    const corFundoClaro = [208, 227, 195]; // Verde fundo #d0e3c3
+    const corTexto = [33, 33, 33]; // Preto suave
+    const corTextoClaro = [97, 97, 97]; // Cinza médio
+    const corLinha = [231, 231, 231]; // Cinza claro #e7e7e7
+    const corFundoTabela = [245, 250, 243]; // Verde muito claro para tabela
     
-    yPosition += 15;
-    doc.setFontSize(12);
-    doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, margemEsquerda, yPosition);
-    yPosition += 7;
-    doc.text(`Hora: ${new Date().toLocaleTimeString('pt-BR')}`, margemEsquerda, yPosition);
+    // LOGO - Adicionar logo no topo centralizada
+    const logo = new Image();
+    logo.src = '/images/logo.png';
     
-    // Informações da mesa
-    yPosition += 15;
-    doc.setFontSize(14);
-    doc.text(`Mesa: ${mesaSelecionada.number}`, margemEsquerda, yPosition);
+    // Carregar e adicionar logo
+    try {
+      const logoWidth = 40;
+      const logoHeight = 40;
+      const logoX = (pageWidth - logoWidth) / 2;
+      doc.addImage(logo, 'PNG', logoX, yPosition, logoWidth, logoHeight);
+      yPosition += logoHeight + 10;
+    } catch (error) {
+      console.log('Logo não carregada, continuando sem logo');
+      yPosition += 5;
+    }
     
-    // Linha separadora
-    yPosition += 10;
-    doc.line(margemEsquerda, yPosition, 190, yPosition);
+    // CABEÇALHO - Nome do estabelecimento
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corPrimaria);
+    doc.text('100SPERA', pageWidth / 2, yPosition, { align: 'center' });
     
-    // Itens do pedido
-    yPosition += 10;
-    doc.setFontSize(12);
-    doc.text('Itens Consumidos:', margemEsquerda, yPosition);
-    
-    yPosition += 10;
+    yPosition += 8;
     doc.setFontSize(10);
-    pedidos.forEach((pedido) => {
-      doc.text(
-        `${pedido.quantidade}x ${pedido.item}`,
-        margemEsquerda + 5,
-        yPosition
-      );
-      doc.text(
-        `R$ ${(pedido.quantidade * pedido.preco).toFixed(2).replace('.', ',')}`,
-        150,
-        yPosition
-      );
-      yPosition += 7;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTextoClaro);
+    doc.text('Restaurante & Choperia', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Linha decorativa laranja
+    yPosition += 8;
+    doc.setDrawColor(...corPrimaria);
+    doc.setLineWidth(0.8);
+    doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
+    
+    // TÍTULO DO RECIBO
+    yPosition += 12;
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corTexto);
+    doc.text('RECIBO DE PAGAMENTO', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // DATA E HORA em box
+    yPosition += 12;
+    doc.setDrawColor(...corLinha);
+    doc.setFillColor(...corFundoClaro);
+    doc.roundedRect(margemEsquerda, yPosition, larguraUtil, 18, 2, 2, 'FD');
+    
+    yPosition += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTextoClaro);
+    
+    const dataAtual = new Date();
+    const dataFormatada = dataAtual.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
     });
     
-    // Linha separadora
+    doc.text(`Data: ${dataFormatada}`, margemEsquerda + 5, yPosition);
+    doc.text(`Hora: ${horaFormatada}`, pageWidth - margemDireita - 5, yPosition, { align: 'right' });
+    
+    yPosition += 7;
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corPrimaria);
+    doc.text(`Mesa: ${mesaSelecionada.number}`, margemEsquerda + 5, yPosition);
+    
+    // SEÇÃO DE ITENS
+    yPosition += 18;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corTexto);
+    doc.text('Itens Consumidos', margemEsquerda, yPosition);
+    
+    // Linha abaixo do título
+    yPosition += 3;
+    doc.setDrawColor(...corPrimaria);
+    doc.setLineWidth(0.5);
+    doc.line(margemEsquerda, yPosition, margemEsquerda + 45, yPosition);
+    
+    // Cabeçalho da tabela
+    yPosition += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corTextoClaro);
+    doc.text('QTD', margemEsquerda + 2, yPosition);
+    doc.text('ITEM', margemEsquerda + 15, yPosition);
+    doc.text('PREÇO UNIT.', pageWidth - margemDireita - 55, yPosition, { align: 'right' });
+    doc.text('TOTAL', pageWidth - margemDireita - 2, yPosition, { align: 'right' });
+    
+    // Linha divisória
+    yPosition += 2;
+    doc.setDrawColor(...corLinha);
+    doc.setLineWidth(0.3);
+    doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
+    
+    // Itens do pedido
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTexto);
+    doc.setFontSize(9);
+    
+    pedidos.forEach((pedido, index) => {
+      // Fundo alternado para facilitar leitura
+      if (index % 2 === 0) {
+        doc.setFillColor(...corFundoTabela);
+        doc.rect(margemEsquerda, yPosition - 5, larguraUtil, 9, 'F');
+      }
+      
+      doc.text(String(pedido.quantidade), margemEsquerda + 5, yPosition, { align: 'center' });
+      doc.text(pedido.item.substring(0, 35), margemEsquerda + 15, yPosition);
+      doc.text(`R$ ${pedido.preco.toFixed(2).replace('.', ',')}`, pageWidth - margemDireita - 55, yPosition, { align: 'right' });
+      doc.text(`R$ ${(pedido.quantidade * pedido.preco).toFixed(2).replace('.', ',')}`, pageWidth - margemDireita - 2, yPosition, { align: 'right' });
+      
+      yPosition += 7;
+      
+      // Observações se houver
+      if (pedido.observacoes) {
+        doc.setFontSize(8);
+        doc.setTextColor(...corTextoClaro);
+        doc.setFont('helvetica', 'italic');
+        doc.text(`Obs: ${pedido.observacoes}`, margemEsquerda + 15, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...corTexto);
+        doc.setFontSize(9);
+        yPosition += 6;
+      }
+      
+      yPosition += 2;
+    });
+    
+    // Linha separadora antes dos totais
     yPosition += 5;
-    doc.line(margemEsquerda, yPosition, 190, yPosition);
+    doc.setDrawColor(...corPrimaria);
+    doc.setLineWidth(0.5);
+    doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
     
-    // Totais
+    // TOTAIS
     yPosition += 10;
-    doc.setFontSize(11);
-    doc.text('Subtotal:', margemEsquerda, yPosition);
-    doc.text(
-      `R$ ${calcularSubtotal().toFixed(2).replace('.', ',')}`,
-      150,
-      yPosition
-    );
+    const colValores = pageWidth - margemDireita - 2;
     
+    // Subtotal
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTexto);
+    doc.text('Subtotal:', margemEsquerda, yPosition);
+    doc.text(`R$ ${calcularSubtotal().toFixed(2).replace('.', ',')}`, colValores, yPosition, { align: 'right' });
+    
+    // Taxa de serviço
     if (taxaServico) {
       yPosition += 7;
       doc.text('Taxa de Serviço (10%):', margemEsquerda, yPosition);
-      doc.text(
-        `R$ ${calcularTaxa().toFixed(2).replace('.', ',')}`,
-        150,
-        yPosition
-      );
+      doc.text(`R$ ${calcularTaxa().toFixed(2).replace('.', ',')}`, colValores, yPosition, { align: 'right' });
     }
     
-    // Linha separadora
-    yPosition += 5;
-    doc.line(margemEsquerda, yPosition, 190, yPosition);
-    
-    // Total
+    // Box do total
     yPosition += 10;
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('TOTAL PAGO:', margemEsquerda, yPosition);
-    doc.text(
-      `R$ ${calcularTotal().toFixed(2).replace('.', ',')}`,
-      150,
-      yPosition
-    );
+    doc.setDrawColor(...corSecundaria);
+    doc.setFillColor(...corPrimaria);
+    doc.roundedRect(margemEsquerda, yPosition - 5, larguraUtil, 14, 2, 2, 'FD');
     
-    // Rodapé
-    yPosition += 20;
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'normal');
-    doc.text('Obrigado pela preferência!', margemEsquerda, yPosition);
+    yPosition += 4;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.text('TOTAL PAGO:', margemEsquerda + 5, yPosition);
+    doc.text(`R$ ${calcularTotal().toFixed(2).replace('.', ',')}`, colValores - 5, yPosition, { align: 'right' });
+    
+    // RODAPÉ
+    yPosition = pageHeight - 40;
+    
+    // Box laranja com mensagem de agradecimento
+    doc.setDrawColor(...corPrimaria);
+    doc.setFillColor(...corFundoClaro);
+    doc.roundedRect(margemEsquerda, yPosition, larguraUtil, 16, 2, 2, 'FD');
+    
     yPosition += 7;
-    doc.text('Volte sempre!', margemEsquerda, yPosition);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corPrimaria);
+    doc.text('Obrigado pela preferência!', pageWidth / 2, yPosition, { align: 'center' });
+    
+    yPosition += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTextoClaro);
+    doc.text('Volte sempre ao 100SPERA', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Informações de contato
+    yPosition += 10;
+    doc.setFontSize(8);
+    doc.setTextColor(...corTextoClaro);
+    doc.text('www.100spera.com.br | (11) 3456-7890', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Número do documento no rodapé
+    yPosition += 7;
+    doc.setFontSize(7);
+    doc.setTextColor(...corTextoClaro);
+    const numeroDoc = `DOC: ${mesaSelecionada.number}-${new Date().getTime()}`;
+    doc.text(numeroDoc, pageWidth / 2, yPosition, { align: 'center' });
     
     // Salvar o PDF
-    const nomeArquivo = `recibo_mesa_${mesaSelecionada.number}_${new Date().getTime()}.pdf`;
+    const nomeArquivo = `recibo_100spera_mesa${mesaSelecionada.number}_${new Date().getTime()}.pdf`;
     doc.save(nomeArquivo);
   };
 
