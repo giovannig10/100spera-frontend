@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import styles from './page.module.css';
+import jsPDF from 'jspdf';
 
 export default function CaixaPage() {
-
-  
   const [mesas, setMesas] = useState([
     { id: 1, numero: 1, valor: 30.00, status: 'ocupada' },
     { id: 2, numero: 2, valor: 556.00, status: 'ocupada' },
@@ -67,7 +66,111 @@ export default function CaixaPage() {
     setMostrarModalConfirmacao(true);
   };
 
+  const gerarReciboPDF = () => {
+    if (!mesaSelecionada) return;
+    
+    const doc = new jsPDF();
+    
+    // Configurações do PDF
+    const margemEsquerda = 20;
+    let yPosition = 20;
+    
+    // Cabeçalho
+    doc.setFontSize(20);
+    doc.text('RECIBO DE PAGAMENTO', margemEsquerda, yPosition);
+    
+    yPosition += 15;
+    doc.setFontSize(12);
+    doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, margemEsquerda, yPosition);
+    yPosition += 7;
+    doc.text(`Hora: ${new Date().toLocaleTimeString('pt-BR')}`, margemEsquerda, yPosition);
+    
+    // Informações da mesa
+    yPosition += 15;
+    doc.setFontSize(14);
+    doc.text(`Mesa: ${mesaSelecionada.numero}`, margemEsquerda, yPosition);
+    
+    // Linha separadora
+    yPosition += 10;
+    doc.line(margemEsquerda, yPosition, 190, yPosition);
+    
+    // Itens do pedido
+    yPosition += 10;
+    doc.setFontSize(12);
+    doc.text('Itens Consumidos:', margemEsquerda, yPosition);
+    
+    yPosition += 10;
+    doc.setFontSize(10);
+    pedidos.forEach((pedido) => {
+      doc.text(
+        `${pedido.quantidade}x ${pedido.item}`,
+        margemEsquerda + 5,
+        yPosition
+      );
+      doc.text(
+        `R$ ${(pedido.quantidade * pedido.preco).toFixed(2).replace('.', ',')}`,
+        150,
+        yPosition
+      );
+      yPosition += 7;
+    });
+    
+    // Linha separadora
+    yPosition += 5;
+    doc.line(margemEsquerda, yPosition, 190, yPosition);
+    
+    // Totais
+    yPosition += 10;
+    doc.setFontSize(11);
+    doc.text('Subtotal:', margemEsquerda, yPosition);
+    doc.text(
+      `R$ ${calcularSubtotal().toFixed(2).replace('.', ',')}`,
+      150,
+      yPosition
+    );
+    
+    if (taxaServico) {
+      yPosition += 7;
+      doc.text('Taxa de Serviço (10%):', margemEsquerda, yPosition);
+      doc.text(
+        `R$ ${calcularTaxa().toFixed(2).replace('.', ',')}`,
+        150,
+        yPosition
+      );
+    }
+    
+    // Linha separadora
+    yPosition += 5;
+    doc.line(margemEsquerda, yPosition, 190, yPosition);
+    
+    // Total
+    yPosition += 10;
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('TOTAL PAGO:', margemEsquerda, yPosition);
+    doc.text(
+      `R$ ${calcularTotal().toFixed(2).replace('.', ',')}`,
+      150,
+      yPosition
+    );
+    
+    // Rodapé
+    yPosition += 20;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text('Obrigado pela preferência!', margemEsquerda, yPosition);
+    yPosition += 7;
+    doc.text('Volte sempre!', margemEsquerda, yPosition);
+    
+    // Salvar o PDF
+    const nomeArquivo = `recibo_mesa_${mesaSelecionada.numero}_${new Date().getTime()}.pdf`;
+    doc.save(nomeArquivo);
+  };
+
   const confirmarFechamento = () => {
+    // Gerar o recibo em PDF antes de fechar a conta
+    gerarReciboPDF();
+    
     setMesas(mesas.map(mesa => 
       mesa.id === mesaSelecionada.id 
         ? { ...mesa, valor: 0, status: 'vazia' }
