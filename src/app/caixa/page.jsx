@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './page.module.css';
 import jsPDF from 'jspdf';
 
@@ -15,12 +15,11 @@ export default function CaixaPage() {
   const [pedidos, setPedidos] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Carregar mesas da API
   useEffect(() => {
     carregarMesas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Carregar pedidos quando uma mesa for selecionada
   useEffect(() => {
     if (mesaSelecionada) {
       carregarPedidosDaMesa(mesaSelecionada.number);
@@ -37,7 +36,6 @@ export default function CaixaPage() {
       
       console.log('Mesas recebidas da API:', tables);
       
-      // Processar mesas com seus valores
       const mesasComValores = await Promise.all(
         tables.map(async (table) => {
           const valor = await calcularValorMesa(table.number);
@@ -71,7 +69,6 @@ export default function CaixaPage() {
       
       if (pedidosDaMesa.length === 0) return 0;
       
-      // Buscar order-items de cada pedido
       let valorTotal = 0;
       for (const order of pedidosDaMesa) {
         const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
@@ -96,7 +93,6 @@ export default function CaixaPage() {
       const response = await fetch(`${API_BASE_URL}/orders`);
       const orders = await response.json();
       
-      // Filtrar pedidos pendentes da mesa
       const pedidosDaMesa = orders.filter(
         order => order.tableNumber === tableNumber && order.status === 'pendente'
       );
@@ -106,7 +102,6 @@ export default function CaixaPage() {
         return;
       }
       
-      // Buscar todos os order-items dos pedidos
       const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
       const allItems = await itemsResponse.json();
       
@@ -116,7 +111,6 @@ export default function CaixaPage() {
         todosItens.push(...itensDoPedido);
       });
       
-      // Formatar os itens para exibição
       const pedidosFormatados = todosItens.map(item => ({
         item: item.dish.name,
         quantidade: item.quantity,
@@ -132,7 +126,6 @@ export default function CaixaPage() {
   };
 
   const selecionarMesa = (mesa) => {
-    // Permitir selecionar mesa se tiver valor > 0 (tem pedidos pendentes)
     if (mesa.valor > 0) {
       setMesaSelecionada(mesa);
     }
@@ -164,28 +157,23 @@ export default function CaixaPage() {
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     
-    // Configurações de margens e cores
     const margemEsquerda = 20;
     const margemDireita = 20;
     const larguraUtil = pageWidth - margemEsquerda - margemDireita;
     let yPosition = 20;
     
-    // Cores do site 100SPERA
-    const corPrimaria = [68, 93, 66]; // Verde primário #445d42
-    const corSecundaria = [83, 125, 93]; // Verde secundário #537d5d
-    const corTerciaria = [103, 139, 102]; // Verde terciário #678b66
-    const corQuinaria = [158, 188, 138]; // Verde claro #9ebc8a
-    const corFundoClaro = [208, 227, 195]; // Verde fundo #d0e3c3
-    const corTexto = [33, 33, 33]; // Preto suave
-    const corTextoClaro = [97, 97, 97]; // Cinza médio
-    const corLinha = [231, 231, 231]; // Cinza claro #e7e7e7
-    const corFundoTabela = [245, 250, 243]; // Verde muito claro para tabela
+    const corPrimaria = [68, 93, 66];
+    const corSecundaria = [83, 125, 93];
+    const corTerciaria = [103, 139, 102];
+    const corQuinaria = [158, 188, 138];
+    const corFundoClaro = [208, 227, 195];
+    const corTexto = [33, 33, 33];
+    const corTextoClaro = [97, 97, 97];
+    const corLinha = [231, 231, 231];
+    const corFundoTabela = [245, 250, 243];
     
-    // LOGO - Adicionar logo no topo centralizada
     const logo = new Image();
     logo.src = '/images/logo.png';
-    
-    // Carregar e adicionar logo
     try {
       const logoWidth = 40;
       const logoHeight = 40;
@@ -197,7 +185,6 @@ export default function CaixaPage() {
       yPosition += 5;
     }
     
-    // CABEÇALHO - Nome do estabelecimento
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...corPrimaria);
@@ -209,20 +196,17 @@ export default function CaixaPage() {
     doc.setTextColor(...corTextoClaro);
     doc.text('Restaurante & Choperia', pageWidth / 2, yPosition, { align: 'center' });
     
-    // Linha decorativa laranja
     yPosition += 8;
     doc.setDrawColor(...corPrimaria);
     doc.setLineWidth(0.8);
     doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
     
-    // TÍTULO DO RECIBO
     yPosition += 12;
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...corTexto);
     doc.text('RECIBO DE PAGAMENTO', pageWidth / 2, yPosition, { align: 'center' });
     
-    // DATA E HORA em box
     yPosition += 12;
     doc.setDrawColor(...corLinha);
     doc.setFillColor(...corFundoClaro);
@@ -252,20 +236,17 @@ export default function CaixaPage() {
     doc.setTextColor(...corPrimaria);
     doc.text(`Mesa: ${mesaSelecionada.number}`, margemEsquerda + 5, yPosition);
     
-    // SEÇÃO DE ITENS
     yPosition += 18;
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...corTexto);
     doc.text('Itens Consumidos', margemEsquerda, yPosition);
     
-    // Linha abaixo do título
     yPosition += 3;
     doc.setDrawColor(...corPrimaria);
     doc.setLineWidth(0.5);
     doc.line(margemEsquerda, yPosition, margemEsquerda + 45, yPosition);
     
-    // Cabeçalho da tabela
     yPosition += 8;
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
@@ -275,20 +256,17 @@ export default function CaixaPage() {
     doc.text('PREÇO UNIT.', pageWidth - margemDireita - 55, yPosition, { align: 'right' });
     doc.text('TOTAL', pageWidth - margemDireita - 2, yPosition, { align: 'right' });
     
-    // Linha divisória
     yPosition += 2;
     doc.setDrawColor(...corLinha);
     doc.setLineWidth(0.3);
     doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
     
-    // Itens do pedido
     yPosition += 8;
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...corTexto);
     doc.setFontSize(9);
     
     pedidos.forEach((pedido, index) => {
-      // Fundo alternado para facilitar leitura
       if (index % 2 === 0) {
         doc.setFillColor(...corFundoTabela);
         doc.rect(margemEsquerda, yPosition - 5, larguraUtil, 9, 'F');
@@ -301,7 +279,6 @@ export default function CaixaPage() {
       
       yPosition += 7;
       
-      // Observações se houver
       if (pedido.observacoes) {
         doc.setFontSize(8);
         doc.setTextColor(...corTextoClaro);
@@ -316,31 +293,26 @@ export default function CaixaPage() {
       yPosition += 2;
     });
     
-    // Linha separadora antes dos totais
     yPosition += 5;
     doc.setDrawColor(...corPrimaria);
     doc.setLineWidth(0.5);
     doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
     
-    // TOTAIS
     yPosition += 10;
     const colValores = pageWidth - margemDireita - 2;
     
-    // Subtotal
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(...corTexto);
     doc.text('Subtotal:', margemEsquerda, yPosition);
     doc.text(`R$ ${calcularSubtotal().toFixed(2).replace('.', ',')}`, colValores, yPosition, { align: 'right' });
     
-    // Taxa de serviço
     if (taxaServico) {
       yPosition += 7;
       doc.text('Taxa de Serviço (10%):', margemEsquerda, yPosition);
       doc.text(`R$ ${calcularTaxa().toFixed(2).replace('.', ',')}`, colValores, yPosition, { align: 'right' });
     }
     
-    // Box do total
     yPosition += 10;
     doc.setDrawColor(...corSecundaria);
     doc.setFillColor(...corPrimaria);
@@ -353,10 +325,8 @@ export default function CaixaPage() {
     doc.text('TOTAL PAGO:', margemEsquerda + 5, yPosition);
     doc.text(`R$ ${calcularTotal().toFixed(2).replace('.', ',')}`, colValores - 5, yPosition, { align: 'right' });
     
-    // RODAPÉ
     yPosition = pageHeight - 40;
     
-    // Box laranja com mensagem de agradecimento
     doc.setDrawColor(...corPrimaria);
     doc.setFillColor(...corFundoClaro);
     doc.roundedRect(margemEsquerda, yPosition, larguraUtil, 16, 2, 2, 'FD');
@@ -373,20 +343,17 @@ export default function CaixaPage() {
     doc.setTextColor(...corTextoClaro);
     doc.text('Volte sempre ao 100SPERA', pageWidth / 2, yPosition, { align: 'center' });
     
-    // Informações de contato
     yPosition += 10;
     doc.setFontSize(8);
     doc.setTextColor(...corTextoClaro);
     doc.text('www.100spera.com.br | (11) 3456-7890', pageWidth / 2, yPosition, { align: 'center' });
     
-    // Número do documento no rodapé
     yPosition += 7;
     doc.setFontSize(7);
     doc.setTextColor(...corTextoClaro);
     const numeroDoc = `DOC: ${mesaSelecionada.number}-${new Date().getTime()}`;
     doc.text(numeroDoc, pageWidth / 2, yPosition, { align: 'center' });
     
-    // Salvar o PDF
     const nomeArquivo = `recibo_100spera_mesa${mesaSelecionada.number}_${new Date().getTime()}.pdf`;
     doc.save(nomeArquivo);
   };
@@ -397,10 +364,8 @@ export default function CaixaPage() {
     try {
       console.log('Iniciando fechamento da mesa:', mesaSelecionada.number);
       
-      // Gerar o recibo em PDF antes de fechar a conta
       gerarReciboPDF();
       
-      // Buscar pedidos da mesa para atualizar o status
       const ordersResponse = await fetch(`${API_BASE_URL}/orders`);
       const orders = await ordersResponse.json();
       
@@ -412,9 +377,7 @@ export default function CaixaPage() {
       
       console.log('Pedidos da mesa para finalizar:', pedidosDaMesa);
       
-      // Atualizar status de cada pedido para 'pago' e zerar valores dos itens
       for (const order of pedidosDaMesa) {
-        // Atualizar status do pedido para 'pago'
         const response = await fetch(`${API_BASE_URL}/orders/${order.id}`, {
           method: 'PUT',
           headers: {
@@ -428,14 +391,12 @@ export default function CaixaPage() {
         });
         console.log(`Pedido ${order.id} atualizado para 'pago':`, response.ok);
         
-        // Buscar e zerar os valores dos order-items deste pedido
         const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
         const allItems = await itemsResponse.json();
         
         const itensDoPedido = allItems.filter(item => item.orderId === order.id);
         
         for (const item of itensDoPedido) {
-          // Zerar o valor do item (definir preço como 0)
           await fetch(`${API_BASE_URL}/order-items/${item.id}`, {
             method: 'PUT',
             headers: {
@@ -452,7 +413,6 @@ export default function CaixaPage() {
         }
       }
       
-      // Atualizar status da mesa para disponível
       const mesaResponse = await fetch(`${API_BASE_URL}/tables/${mesaSelecionada.number}`, {
         method: 'PUT',
         headers: {
@@ -466,11 +426,9 @@ export default function CaixaPage() {
       
       console.log('Mesa atualizada:', mesaResponse.ok);
       
-      // Fechar modal e limpar seleção antes de recarregar
       setMostrarModalConfirmacao(false);
       setMesaSelecionada(null);
       
-      // Recarregar mesas após um pequeno delay
       setTimeout(async () => {
         await carregarMesas();
         setMostrarModalSucesso(true);
@@ -547,7 +505,6 @@ export default function CaixaPage() {
           </div>
         </div>
 
-        {/* Drawer lateral dentro do layout (mapa diminui mas continua visível) */}
         {mesaSelecionada && (
           <div className={`${styles.drawer} ${mesaSelecionada ? styles.drawerOpen : ''}`}>
             <div className={styles.fechamento}>
@@ -621,10 +578,8 @@ export default function CaixaPage() {
               </div>
             </div>
         )}
-        {/* Quando nenhuma mesa está selecionada, não renderiza placeholder à direita */}
       </div>
 
-      {/* Modal de Confirmação */}
       {mostrarModalConfirmacao && (
         <div className={styles.modalOverlay} onClick={cancelarFechamento}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
@@ -653,7 +608,6 @@ export default function CaixaPage() {
         </div>
       )}
 
-      {/* Modal de Sucesso */}
       {mostrarModalSucesso && (
         <div className={styles.modalOverlay} onClick={fecharModalSucesso}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
