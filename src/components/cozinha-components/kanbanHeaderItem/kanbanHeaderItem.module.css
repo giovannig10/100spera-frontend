@@ -6,6 +6,7 @@
     align-items: center;
 }
 .titleText{
+    color: var(--cor-septiaria);
     font-size: 2rem;
     text-align: center;
 }

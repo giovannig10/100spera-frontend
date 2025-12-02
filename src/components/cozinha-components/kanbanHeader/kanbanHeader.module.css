@@ -1,8 +1,7 @@
 .kanbanHeader{
     width: 100%;
     height: 4.2rem;
-    background-color: var(--cor-secundaria);
-    color: var(--cor-quinaria);
+    background-color: var(--cor-terciaria);
     display: flex;
     justify-content: space-between;
     align-items: center;

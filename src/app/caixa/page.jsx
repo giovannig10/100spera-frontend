@@ -1,49 +1,139 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './page.module.css';
+import jsPDF from 'jspdf';
+
+const API_BASE_URL = 'http://localhost:4000/100spera';
 
 export default function CaixaPage() {
-
-  
-  const [mesas, setMesas] = useState([
-    { id: 1, numero: 1, valor: 30.00, status: 'ocupada' },
-    { id: 2, numero: 2, valor: 556.00, status: 'ocupada' },
-    { id: 3, numero: 3, valor: 250.00, status: 'ocupada' },
-    { id: 4, numero: 4, valor: 100.00, status: 'ocupada' },
-    { id: 5, numero: 5, valor: 0, status: 'vazia' },
-    { id: 6, numero: 6, valor: 0, status: 'vazia' },
-    { id: 7, numero: 7, valor: 17.00, status: 'ocupada' },
-    { id: 8, numero: 8, valor: 143.00, status: 'ocupada' },
-    { id: 9, numero: 9, valor: 0, status: 'vazia' },
-    { id: 10, numero: 10, valor: 0, status: 'vazia' },
-    { id: 11, numero: 11, valor: 0, status: 'vazia' },
-    { id: 12, numero: 12, valor: 0, status: 'vazia' },
-    { id: 13, numero: 13, valor: 78.00, status: 'ocupada' },
-    { id: 14, numero: 14, valor: 0, status: 'vazia' },
-    { id: 15, numero: 15, valor: 14.00, status: 'ocupada' },
-    { id: 16, numero: 16, valor: 59.00, status: 'ocupada' },
-    { id: 17, numero: 17, valor: 0, status: 'vazia' },
-    { id: 18, numero: 18, valor: 0, status: 'vazia' },
-    { id: 19, numero: 19, valor: 103.00, status: 'ocupada' },
-    { id: 20, numero: 20, valor: 98.00, status: 'ocupada' },
-    { id: 21, numero: 21, valor: 420.00, status: 'ocupada' },
-    { id: 22, numero: 22, valor: 82.00, status: 'ocupada' },
-    { id: 23, numero: 23, valor: 0, status: 'vazia' },
-    { id: 24, numero: 24, valor: 0, status: 'vazia' },
-  ]);
-
+  const [mesas, setMesas] = useState([]);
   const [mesaSelecionada, setMesaSelecionada] = useState(null);
   const [taxaServico, setTaxaServico] = useState(true);
   const [mostrarModalConfirmacao, setMostrarModalConfirmacao] = useState(false);
   const [mostrarModalSucesso, setMostrarModalSucesso] = useState(false);
-  const [pedidos] = useState([
-    { item: 'Hamburguer Clássico', quantidade: 4, preco: 22.00 },
-    { item: 'Coca Cola', quantidade: 4, preco: 8.00 },
-  ]);
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Carregar mesas da API
+  useEffect(() => {
+    carregarMesas();
+  }, []);
+
+  // Carregar pedidos quando uma mesa for selecionada
+  useEffect(() => {
+    if (mesaSelecionada) {
+      carregarPedidosDaMesa(mesaSelecionada.number);
+    } else {
+      setPedidos([]);
+    }
+  }, [mesaSelecionada]);
+
+  const carregarMesas = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/tables`);
+      const tables = await response.json();
+      
+      console.log('Mesas recebidas da API:', tables);
+      
+      // Processar mesas com seus valores
+      const mesasComValores = await Promise.all(
+        tables.map(async (table) => {
+          const valor = await calcularValorMesa(table.number);
+          return {
+            id: table.number,
+            number: table.number,
+            valor: valor,
+            status: table.status === 'disponível' ? 'disponível' : 'ocupada'
+          };
+        })
+      );
+      
+      console.log('Mesas processadas:', mesasComValores);
+      setMesas(mesasComValores);
+    } catch (error) {
+      console.error('Erro ao carregar mesas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calcularValorMesa = async (tableNumber) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders`);
+      const orders = await response.json();
+      
+      // Filtrar pedidos pendentes da mesa
+      const pedidosDaMesa = orders.filter(
+        order => order.tableNumber === tableNumber && order.status === 'pendente'
+      );
+      
+      if (pedidosDaMesa.length === 0) return 0;
+      
+      // Buscar order-items de cada pedido
+      let valorTotal = 0;
+      for (const order of pedidosDaMesa) {
+        const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
+        const allItems = await itemsResponse.json();
+        
+        const itensDoPedido = allItems.filter(item => item.orderId === order.id);
+        
+        itensDoPedido.forEach(item => {
+          valorTotal += item.dish.price * item.quantity;
+        });
+      }
+      
+      return valorTotal;
+    } catch (error) {
+      console.error('Erro ao calcular valor da mesa:', error);
+      return 0;
+    }
+  };
+
+  const carregarPedidosDaMesa = async (tableNumber) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders`);
+      const orders = await response.json();
+      
+      // Filtrar pedidos pendentes da mesa
+      const pedidosDaMesa = orders.filter(
+        order => order.tableNumber === tableNumber && order.status === 'pendente'
+      );
+      
+      if (pedidosDaMesa.length === 0) {
+        setPedidos([]);
+        return;
+      }
+      
+      // Buscar todos os order-items dos pedidos
+      const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
+      const allItems = await itemsResponse.json();
+      
+      const todosItens = [];
+      pedidosDaMesa.forEach(order => {
+        const itensDoPedido = allItems.filter(item => item.orderId === order.id);
+        todosItens.push(...itensDoPedido);
+      });
+      
+      // Formatar os itens para exibição
+      const pedidosFormatados = todosItens.map(item => ({
+        item: item.dish.name,
+        quantidade: item.quantity,
+        preco: item.dish.price,
+        observacoes: item.observations
+      }));
+      
+      setPedidos(pedidosFormatados);
+    } catch (error) {
+      console.error('Erro ao carregar pedidos da mesa:', error);
+      setPedidos([]);
+    }
+  };
 
   const selecionarMesa = (mesa) => {
-    if (mesa.status === 'ocupada') {
+    // Permitir selecionar mesa se tiver valor > 0 (tem pedidos pendentes)
+    if (mesa.valor > 0) {
       setMesaSelecionada(mesa);
     }
   };
@@ -67,14 +157,329 @@ export default function CaixaPage() {
     setMostrarModalConfirmacao(true);
   };
 
-  const confirmarFechamento = () => {
-    setMesas(mesas.map(mesa => 
-      mesa.id === mesaSelecionada.id 
-        ? { ...mesa, valor: 0, status: 'vazia' }
-        : mesa
-    ));
-    setMostrarModalConfirmacao(false);
-    setMostrarModalSucesso(true);
+  const gerarReciboPDF = () => {
+    if (!mesaSelecionada) return;
+    
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Configurações de margens e cores
+    const margemEsquerda = 20;
+    const margemDireita = 20;
+    const larguraUtil = pageWidth - margemEsquerda - margemDireita;
+    let yPosition = 20;
+    
+    // Cores do site 100SPERA
+    const corPrimaria = [68, 93, 66]; // Verde primário #445d42
+    const corSecundaria = [83, 125, 93]; // Verde secundário #537d5d
+    const corTerciaria = [103, 139, 102]; // Verde terciário #678b66
+    const corQuinaria = [158, 188, 138]; // Verde claro #9ebc8a
+    const corFundoClaro = [208, 227, 195]; // Verde fundo #d0e3c3
+    const corTexto = [33, 33, 33]; // Preto suave
+    const corTextoClaro = [97, 97, 97]; // Cinza médio
+    const corLinha = [231, 231, 231]; // Cinza claro #e7e7e7
+    const corFundoTabela = [245, 250, 243]; // Verde muito claro para tabela
+    
+    // LOGO - Adicionar logo no topo centralizada
+    const logo = new Image();
+    logo.src = '/images/logo.png';
+    
+    // Carregar e adicionar logo
+    try {
+      const logoWidth = 40;
+      const logoHeight = 40;
+      const logoX = (pageWidth - logoWidth) / 2;
+      doc.addImage(logo, 'PNG', logoX, yPosition, logoWidth, logoHeight);
+      yPosition += logoHeight + 10;
+    } catch (error) {
+      console.log('Logo não carregada, continuando sem logo');
+      yPosition += 5;
+    }
+    
+    // CABEÇALHO - Nome do estabelecimento
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corPrimaria);
+    doc.text('100SPERA', pageWidth / 2, yPosition, { align: 'center' });
+    
+    yPosition += 8;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTextoClaro);
+    doc.text('Restaurante & Choperia', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Linha decorativa laranja
+    yPosition += 8;
+    doc.setDrawColor(...corPrimaria);
+    doc.setLineWidth(0.8);
+    doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
+    
+    // TÍTULO DO RECIBO
+    yPosition += 12;
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corTexto);
+    doc.text('RECIBO DE PAGAMENTO', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // DATA E HORA em box
+    yPosition += 12;
+    doc.setDrawColor(...corLinha);
+    doc.setFillColor(...corFundoClaro);
+    doc.roundedRect(margemEsquerda, yPosition, larguraUtil, 18, 2, 2, 'FD');
+    
+    yPosition += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTextoClaro);
+    
+    const dataAtual = new Date();
+    const dataFormatada = dataAtual.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+    const horaFormatada = dataAtual.toLocaleTimeString('pt-BR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    doc.text(`Data: ${dataFormatada}`, margemEsquerda + 5, yPosition);
+    doc.text(`Hora: ${horaFormatada}`, pageWidth - margemDireita - 5, yPosition, { align: 'right' });
+    
+    yPosition += 7;
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corPrimaria);
+    doc.text(`Mesa: ${mesaSelecionada.number}`, margemEsquerda + 5, yPosition);
+    
+    // SEÇÃO DE ITENS
+    yPosition += 18;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corTexto);
+    doc.text('Itens Consumidos', margemEsquerda, yPosition);
+    
+    // Linha abaixo do título
+    yPosition += 3;
+    doc.setDrawColor(...corPrimaria);
+    doc.setLineWidth(0.5);
+    doc.line(margemEsquerda, yPosition, margemEsquerda + 45, yPosition);
+    
+    // Cabeçalho da tabela
+    yPosition += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corTextoClaro);
+    doc.text('QTD', margemEsquerda + 2, yPosition);
+    doc.text('ITEM', margemEsquerda + 15, yPosition);
+    doc.text('PREÇO UNIT.', pageWidth - margemDireita - 55, yPosition, { align: 'right' });
+    doc.text('TOTAL', pageWidth - margemDireita - 2, yPosition, { align: 'right' });
+    
+    // Linha divisória
+    yPosition += 2;
+    doc.setDrawColor(...corLinha);
+    doc.setLineWidth(0.3);
+    doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
+    
+    // Itens do pedido
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTexto);
+    doc.setFontSize(9);
+    
+    pedidos.forEach((pedido, index) => {
+      // Fundo alternado para facilitar leitura
+      if (index % 2 === 0) {
+        doc.setFillColor(...corFundoTabela);
+        doc.rect(margemEsquerda, yPosition - 5, larguraUtil, 9, 'F');
+      }
+      
+      doc.text(String(pedido.quantidade), margemEsquerda + 5, yPosition, { align: 'center' });
+      doc.text(pedido.item.substring(0, 35), margemEsquerda + 15, yPosition);
+      doc.text(`R$ ${pedido.preco.toFixed(2).replace('.', ',')}`, pageWidth - margemDireita - 55, yPosition, { align: 'right' });
+      doc.text(`R$ ${(pedido.quantidade * pedido.preco).toFixed(2).replace('.', ',')}`, pageWidth - margemDireita - 2, yPosition, { align: 'right' });
+      
+      yPosition += 7;
+      
+      // Observações se houver
+      if (pedido.observacoes) {
+        doc.setFontSize(8);
+        doc.setTextColor(...corTextoClaro);
+        doc.setFont('helvetica', 'italic');
+        doc.text(`Obs: ${pedido.observacoes}`, margemEsquerda + 15, yPosition);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...corTexto);
+        doc.setFontSize(9);
+        yPosition += 6;
+      }
+      
+      yPosition += 2;
+    });
+    
+    // Linha separadora antes dos totais
+    yPosition += 5;
+    doc.setDrawColor(...corPrimaria);
+    doc.setLineWidth(0.5);
+    doc.line(margemEsquerda, yPosition, pageWidth - margemDireita, yPosition);
+    
+    // TOTAIS
+    yPosition += 10;
+    const colValores = pageWidth - margemDireita - 2;
+    
+    // Subtotal
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTexto);
+    doc.text('Subtotal:', margemEsquerda, yPosition);
+    doc.text(`R$ ${calcularSubtotal().toFixed(2).replace('.', ',')}`, colValores, yPosition, { align: 'right' });
+    
+    // Taxa de serviço
+    if (taxaServico) {
+      yPosition += 7;
+      doc.text('Taxa de Serviço (10%):', margemEsquerda, yPosition);
+      doc.text(`R$ ${calcularTaxa().toFixed(2).replace('.', ',')}`, colValores, yPosition, { align: 'right' });
+    }
+    
+    // Box do total
+    yPosition += 10;
+    doc.setDrawColor(...corSecundaria);
+    doc.setFillColor(...corPrimaria);
+    doc.roundedRect(margemEsquerda, yPosition - 5, larguraUtil, 14, 2, 2, 'FD');
+    
+    yPosition += 4;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.text('TOTAL PAGO:', margemEsquerda + 5, yPosition);
+    doc.text(`R$ ${calcularTotal().toFixed(2).replace('.', ',')}`, colValores - 5, yPosition, { align: 'right' });
+    
+    // RODAPÉ
+    yPosition = pageHeight - 40;
+    
+    // Box laranja com mensagem de agradecimento
+    doc.setDrawColor(...corPrimaria);
+    doc.setFillColor(...corFundoClaro);
+    doc.roundedRect(margemEsquerda, yPosition, larguraUtil, 16, 2, 2, 'FD');
+    
+    yPosition += 7;
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...corPrimaria);
+    doc.text('Obrigado pela preferência!', pageWidth / 2, yPosition, { align: 'center' });
+    
+    yPosition += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(...corTextoClaro);
+    doc.text('Volte sempre ao 100SPERA', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Informações de contato
+    yPosition += 10;
+    doc.setFontSize(8);
+    doc.setTextColor(...corTextoClaro);
+    doc.text('www.100spera.com.br | (11) 3456-7890', pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Número do documento no rodapé
+    yPosition += 7;
+    doc.setFontSize(7);
+    doc.setTextColor(...corTextoClaro);
+    const numeroDoc = `DOC: ${mesaSelecionada.number}-${new Date().getTime()}`;
+    doc.text(numeroDoc, pageWidth / 2, yPosition, { align: 'center' });
+    
+    // Salvar o PDF
+    const nomeArquivo = `recibo_100spera_mesa${mesaSelecionada.number}_${new Date().getTime()}.pdf`;
+    doc.save(nomeArquivo);
+  };
+
+  const confirmarFechamento = async () => {
+    if (!mesaSelecionada) return;
+    
+    try {
+      console.log('Iniciando fechamento da mesa:', mesaSelecionada.number);
+      
+      // Gerar o recibo em PDF antes de fechar a conta
+      gerarReciboPDF();
+      
+      // Buscar pedidos da mesa para atualizar o status
+      const ordersResponse = await fetch(`${API_BASE_URL}/orders`);
+      const orders = await ordersResponse.json();
+      
+      console.log('Todos os pedidos:', orders);
+      
+      const pedidosDaMesa = orders.filter(
+        order => order.tableNumber === mesaSelecionada.number && order.status === 'pendente'
+      );
+      
+      console.log('Pedidos da mesa para finalizar:', pedidosDaMesa);
+      
+      // Atualizar status de cada pedido para 'pago' e zerar valores dos itens
+      for (const order of pedidosDaMesa) {
+        // Atualizar status do pedido para 'pago'
+        const response = await fetch(`${API_BASE_URL}/orders/${order.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            tableNumber: order.tableNumber,
+            status: 'pago',
+            userId: order.userId
+          })
+        });
+        console.log(`Pedido ${order.id} atualizado para 'pago':`, response.ok);
+        
+        // Buscar e zerar os valores dos order-items deste pedido
+        const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
+        const allItems = await itemsResponse.json();
+        
+        const itensDoPedido = allItems.filter(item => item.orderId === order.id);
+        
+        for (const item of itensDoPedido) {
+          // Zerar o valor do item (definir preço como 0)
+          await fetch(`${API_BASE_URL}/order-items/${item.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              orderId: item.orderId,
+              dishId: item.dishId,
+              quantity: item.quantity,
+              observations: item.observations
+            })
+          });
+          console.log(`Item ${item.id} zerado`);
+        }
+      }
+      
+      // Atualizar status da mesa para disponível
+      const mesaResponse = await fetch(`${API_BASE_URL}/tables/${mesaSelecionada.number}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          number: mesaSelecionada.number,
+          status: 'disponível' 
+        })
+      });
+      
+      console.log('Mesa atualizada:', mesaResponse.ok);
+      
+      // Fechar modal e limpar seleção antes de recarregar
+      setMostrarModalConfirmacao(false);
+      setMesaSelecionada(null);
+      
+      // Recarregar mesas após um pequeno delay
+      setTimeout(async () => {
+        await carregarMesas();
+        setMostrarModalSucesso(true);
+      }, 300);
+      
+    } catch (error) {
+      console.error('Erro ao fechar conta:', error);
+      alert('Erro ao fechar a conta. Tente novamente.');
+    }
   };
 
   const cancelarFechamento = () => {
@@ -113,21 +518,32 @@ export default function CaixaPage() {
           </div>
 
           <div className={styles.mapaMesas}>
-            {mesas.map(mesa => (
-              <button
-                key={mesa.id}
-                className={`${styles.mesa} ${styles[mesa.status]} ${
-                  mesaSelecionada?.id === mesa.id ? styles.selecionada : ''
-                }`}
-                onClick={() => selecionarMesa(mesa)}
-                disabled={mesa.status === 'vazia'}
-              >
-                <span className={styles.mesaNumero}>Mesa {mesa.numero}</span>
-                <span className={styles.mesaValor}>
-                  R${mesa.valor.toFixed(2).replace('.', ',')}
-                </span>
-              </button>
-            ))}
+            {loading ? (
+              <div className={styles.loading}>Carregando mesas...</div>
+            ) : mesas.length === 0 ? (
+              <div className={styles.loading}>Nenhuma mesa encontrada</div>
+            ) : (
+              mesas.map(mesa => {
+                const temPedidos = mesa.valor > 0;
+                const statusVisual = temPedidos ? 'ocupada' : 'disponível';
+                
+                return (
+                  <button
+                    key={mesa.id}
+                    className={`${styles.mesa} ${styles[statusVisual]} ${
+                      mesaSelecionada?.id === mesa.id ? styles.selecionada : ''
+                    }`}
+                    onClick={() => selecionarMesa(mesa)}
+                    disabled={!temPedidos}
+                  >
+                    <span className={styles.mesaNumero}>Mesa {mesa.number}</span>
+                    <span className={styles.mesaValor}>
+                      R${mesa.valor.toFixed(2).replace('.', ',')}
+                    </span>
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -136,15 +552,24 @@ export default function CaixaPage() {
           <div className={`${styles.drawer} ${mesaSelecionada ? styles.drawerOpen : ''}`}>
             <div className={styles.fechamento}>
               <h2 className={styles.fechamentoTitulo}>
-                Fechamento da conta - Mesa {mesaSelecionada.numero}
+                Fechamento da conta - Mesa {mesaSelecionada.number}
               </h2>
 
               <div className={styles.pedidos}>
-                {pedidos.map((pedido, index) => (
-                  <div key={index} className={styles.pedidoItem}>
-                    {pedido.quantidade}x {pedido.item} – R${pedido.preco.toFixed(2).replace('.', ',')}
-                  </div>
-                ))}
+                {pedidos.length === 0 ? (
+                  <div className={styles.pedidoItem}>Carregando pedidos...</div>
+                ) : (
+                  pedidos.map((pedido, index) => (
+                    <div key={index} className={styles.pedidoItem}>
+                      {pedido.quantidade}x {pedido.item} – R${pedido.preco.toFixed(2).replace('.', ',')}
+                      {pedido.observacoes && (
+                        <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
+                          Obs: {pedido.observacoes}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
 
               <div className={styles.totais}>
@@ -205,7 +630,7 @@ export default function CaixaPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.modalTitulo}>Confirmar Fechamento</h3>
             <p className={styles.modalTexto}>
-              Deseja fechar a conta da Mesa {mesaSelecionada?.numero}?
+              Deseja fechar a conta da Mesa {mesaSelecionada?.number}?
             </p>
             <div className={styles.modalValor}>
               Total: R${calcularTotal().toFixed(2).replace('.', ',')}

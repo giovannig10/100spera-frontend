@@ -75,6 +75,7 @@ export default function Home() {
         bebidas: [],
         drinks: [],
         sobremesas: [],
+        combos: [],
       };
 
       const categorias = Array.isArray(categoriasResponse.data)
@@ -95,12 +96,17 @@ export default function Home() {
         throw new Error("Nenhum prato disponível");
       }
 
-      // Criar mapa de categorias por ID
+      // Criar mapa de categorias por ID (normalizando nomes do seed)
+      const normalize = (s = "") =>
+        String(s)
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/\p{Diacritic}/gu, "")
+          .replace(/\s+/g, "");
+
       const categoriaMap = {};
       categorias.forEach((cat) => {
-        categoriaMap[cat.id] = (cat.name || cat.nome || "")
-          .toLowerCase()
-          .trim();
+        categoriaMap[cat.id] = normalize(cat.name || cat.nome || "");
       });
 
       console.log("Mapa de categorias:", categoriaMap);
@@ -125,12 +131,16 @@ export default function Home() {
 
         console.log(`Prato "${produto.nome}" da categoria "${nomeCategoria}"`);
 
-        // Mapear para as categorias do frontend
-        if (nomeCategoria.includes("entrada") || nomeCategoria === "entradas") {
+        // Mapear para as categorias do frontend (usando nomes normalizados)
+        // nomes esperados no seed: Entrada, Pratos Principais, Sobremesas, Bebidas, drinks, combos
+        if (nomeCategoria.includes("entrada")) {
           produtosOrganizados.entrada.push(produto);
+        } else if (nomeCategoria.includes("combo")) {
+          produtosOrganizados.combos.push(produto);
         } else if (
           nomeCategoria.includes("prato") ||
-          nomeCategoria.includes("principal")
+          nomeCategoria.includes("principal") ||
+          nomeCategoria.includes("pratos")
         ) {
           produtosOrganizados.pratoPrincipal.push(produto);
         } else if (
@@ -278,6 +288,20 @@ export default function Home() {
             imagem: "https://via.placeholder.com/80",
           },
         ],
+        combos: [
+          {
+            id: 18,
+            nome: "Combo Hambúrguer + Batata",
+            preco: 55.0,
+            imagem: "https://via.placeholder.com/80",
+          },
+          {
+            id: 19,
+            nome: "Combo Picanha 2 Pessoas",
+            preco: 120.0,
+            imagem: "https://via.placeholder.com/80",
+          },
+        ],
       });
     } finally {
       setCarregando(false);
@@ -369,26 +393,86 @@ export default function Home() {
 
   const confirmarEnvio = async () => {
     try {
-      console.log("=== ENVIANDO PEDIDO ===");
-      console.log("Mesa:", mesaSelecionada);
-      console.log("Itens:", itensPedido);
+      // Buscar um userId válido dinamicamente (não depender de hardcoded)
+      let resolvedUserId = 1; // fallback
+      try {
+        const usersResp = await axios.get(`${API_URL}/users`);
+        const usersData = Array.isArray(usersResp.data)
+          ? usersResp.data
+          : usersResp.data?.users || usersResp.data?.data || [];
 
-      // PASSO 1: Criar apenas o pedido (Order) SEM os itens
-      const orderData = {
-        tableNumber: parseInt(mesaSelecionada),
-        userId: 43, // vitor sampaio (garçom) - TODO: pegar do usuário logado
-        status: "pendente",
-      };
+        if (usersData && usersData.length > 0) {
+          // Tentar encontrar um garçom
+          const garcomUser = usersData.find((u) =>
+            String(u.type || "")
+              .toLowerCase()
+              .includes("garc")
+          );
+          const pickedUser = garcomUser || usersData[0];
+          resolvedUserId = pickedUser.id || pickedUser._id || 1;
+        }
+      } catch (e) {
+        // Fallback para userId=1
+      }
 
-      console.log("PASSO 1: Criando Order:", orderData);
-      console.log("URL:", `${API_URL}/orders`);
+      // Verificar se a mesa existe, se não, tentar criar
+      try {
+        const tablesResp = await axios.get(`${API_URL}/tables`);
+        const tablesData = Array.isArray(tablesResp.data)
+          ? tablesResp.data
+          : tablesResp.data?.tables || tablesResp.data?.data || [];
 
-      const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
-      const orderId = orderResponse.data.id;
+        const tableExists = tablesData.find(
+          (t) => Number(t.number) === Number(mesaSelecionada)
+        );
 
-      console.log("✓ Order criado com ID:", orderId);
-      // PASSO 2: Adicionar os itens ao pedido
-      console.log("PASSO 2: Adicionando itens ao pedido...");
+        if (!tableExists) {
+          try {
+            await axios.post(`${API_URL}/tables`, {
+              number: Number(mesaSelecionada),
+            });
+          } catch (createErr) {
+            // Não foi possível criar mesa automaticamente
+          }
+        }
+      } catch (e) {
+        // Não foi possível verificar mesas
+      }
+
+      // PASSO 1: Criar o pedido (tentar diferentes formatos de payload)
+      const orderPayloads = [
+        {
+          tableNumber: parseInt(mesaSelecionada),
+          userId: parseInt(resolvedUserId),
+          status: "pendente",
+        },
+        {
+          table_number: parseInt(mesaSelecionada),
+          user_id: parseInt(resolvedUserId),
+          status: "pendente",
+        },
+      ];
+
+      let orderResponse = null;
+      let lastError = null;
+
+      for (const payload of orderPayloads) {
+        try {
+          orderResponse = await axios.post(`${API_URL}/orders`, payload);
+          break;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      //
+      if (!orderResponse) {
+        throw lastError || new Error("Não foi possível criar pedido");
+      }
+
+      const orderId =
+        orderResponse.data?.id ||
+        orderResponse.data?._id ||
+        orderResponse.data?.orderId;
 
       const itemsAdicionados = [];
       const itemsComErro = [];
@@ -401,8 +485,6 @@ export default function Home() {
           observations: observacoes || "",
         };
 
-        console.log("Tentando adicionar item:", orderItemData);
-
         // Tentar diferentes endpoints para criar OrderItems
         let itemCriado = false;
         let ultimoErro = null;
@@ -411,11 +493,9 @@ export default function Home() {
         if (!itemCriado) {
           try {
             await axios.post(`${API_URL}/order-items`, orderItemData);
-            console.log("✓ Item adicionado via /order-items");
             itemCriado = true;
           } catch (err) {
             ultimoErro = err;
-            console.log("Endpoint /order-items não funcionou");
           }
         }
 
@@ -423,11 +503,9 @@ export default function Home() {
         if (!itemCriado) {
           try {
             await axios.post(`${API_URL}/orderItems`, orderItemData);
-            console.log("✓ Item adicionado via /orderItems");
             itemCriado = true;
           } catch (err) {
             ultimoErro = err;
-            console.log("Endpoint /orderItems não funcionou");
           }
         }
 
@@ -438,11 +516,9 @@ export default function Home() {
               `${API_URL}/orders/${orderId}/items`,
               orderItemData
             );
-            console.log("✓ Item adicionado via /orders/:id/items");
             itemCriado = true;
           } catch (err) {
             ultimoErro = err;
-            console.log("Endpoint /orders/:id/items não funcionou");
           }
         }
 
@@ -450,17 +526,8 @@ export default function Home() {
           itemsAdicionados.push(item.nome);
         } else {
           itemsComErro.push(item.nome);
-          console.error(
-            "✗ Não foi possível adicionar item:",
-            item.nome,
-            ultimoErro
-          );
         }
       }
-
-      console.log(
-        `Items adicionados: ${itemsAdicionados.length}/${itensPedido.length}`
-      );
 
       setMostrarModalConfirmacao(false);
 
@@ -478,11 +545,6 @@ export default function Home() {
 
       setMostrarModalSucesso(true);
     } catch (error) {
-      console.error("✗ ERRO AO CRIAR PEDIDO");
-      console.error("Erro completo:", error);
-      console.error("Response data:", error.response?.data);
-      console.error("Response status:", error.response?.status);
-
       let mensagemErro = "Erro desconhecido ao criar pedido";
 
       if (error.response) {
@@ -651,7 +713,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("entrada")}
                   >
-                    Entradas
+                    🍟
                   </button>
                   <button
                     className={
@@ -661,7 +723,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("pratoPrincipal")}
                   >
-                    Prato Principal
+                    🍔
                   </button>
                   <button
                     className={
@@ -671,8 +733,9 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("sobremesas")}
                   >
-                    Sobremesas
+                    🧁
                   </button>
+
                   <button
                     className={
                       categoriaAtiva === "bebidas"
@@ -681,7 +744,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("bebidas")}
                   >
-                    Bebidas
+                    🥤
                   </button>
                   <button
                     className={
@@ -689,7 +752,15 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("drinks")}
                   >
-                    Drinks
+                    🍸
+                  </button>
+                  <button
+                    className={
+                      categoriaAtiva === "combos" ? styles.abaAtiva : styles.aba
+                    }
+                    onClick={() => setCategoriaAtiva("combos")}
+                  >
+                    🍟 🥤 🍔
                   </button>
                 </div>
 
