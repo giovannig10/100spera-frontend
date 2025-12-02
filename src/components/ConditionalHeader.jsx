@@ -7,7 +7,7 @@ export default function ConditionalHeader() {
   const pathname = usePathname();
 
   // Lista de rotas onde o Header DEVE aparecer
-  const routesWithHeader = ["/garcom", "/caixa", "/cozinha", "/adm"];
+  const routesWithHeader = ["/garcom", "/caixa", "/cozinha", "/admin"];
 
   if (routesWithHeader.includes(pathname)) {
     return <Header />;

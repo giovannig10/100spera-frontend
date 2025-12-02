@@ -92,7 +92,7 @@ export default function Home() {
                     break;
                 case 'administrador':
                 case 'admin':
-                    router.push("/adm");
+                    router.push("/admin");
                     break;
                 default:
                     setErro(`Tipo de usuário não reconhecido: ${data.userExists.type}`);

@@ -19,6 +19,8 @@
     "sweetalert2": "^11.26.3"
   },
   "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.7",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.3"

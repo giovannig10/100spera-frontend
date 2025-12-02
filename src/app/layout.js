@@ -1,6 +1,6 @@
 import { Nunito } from "next/font/google";
 import "./globals.css";
-import ConditionalHeader from "@/components/ConditionalHeader";
+import ConditionalHeader from "../components/ConditionalHeader";
 
 const nunito = Nunito({
   subsets: ["latin"],
