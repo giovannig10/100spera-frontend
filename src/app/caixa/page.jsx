@@ -1,48 +1,139 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './page.module.css';
 import jsPDF from 'jspdf';
 
-export default function CaixaPage() {
-  const [mesas, setMesas] = useState([
-    { id: 1, numero: 1, valor: 30.00, status: 'ocupada' },
-    { id: 2, numero: 2, valor: 556.00, status: 'ocupada' },
-    { id: 3, numero: 3, valor: 250.00, status: 'ocupada' },
-    { id: 4, numero: 4, valor: 100.00, status: 'ocupada' },
-    { id: 5, numero: 5, valor: 0, status: 'vazia' },
-    { id: 6, numero: 6, valor: 0, status: 'vazia' },
-    { id: 7, numero: 7, valor: 17.00, status: 'ocupada' },
-    { id: 8, numero: 8, valor: 143.00, status: 'ocupada' },
-    { id: 9, numero: 9, valor: 0, status: 'vazia' },
-    { id: 10, numero: 10, valor: 0, status: 'vazia' },
-    { id: 11, numero: 11, valor: 0, status: 'vazia' },
-    { id: 12, numero: 12, valor: 0, status: 'vazia' },
-    { id: 13, numero: 13, valor: 78.00, status: 'ocupada' },
-    { id: 14, numero: 14, valor: 0, status: 'vazia' },
-    { id: 15, numero: 15, valor: 14.00, status: 'ocupada' },
-    { id: 16, numero: 16, valor: 59.00, status: 'ocupada' },
-    { id: 17, numero: 17, valor: 0, status: 'vazia' },
-    { id: 18, numero: 18, valor: 0, status: 'vazia' },
-    { id: 19, numero: 19, valor: 103.00, status: 'ocupada' },
-    { id: 20, numero: 20, valor: 98.00, status: 'ocupada' },
-    { id: 21, numero: 21, valor: 420.00, status: 'ocupada' },
-    { id: 22, numero: 22, valor: 82.00, status: 'ocupada' },
-    { id: 23, numero: 23, valor: 0, status: 'vazia' },
-    { id: 24, numero: 24, valor: 0, status: 'vazia' },
-  ]);
+const API_BASE_URL = 'http://localhost:4000/100spera';
 
+export default function CaixaPage() {
+  const [mesas, setMesas] = useState([]);
   const [mesaSelecionada, setMesaSelecionada] = useState(null);
   const [taxaServico, setTaxaServico] = useState(true);
   const [mostrarModalConfirmacao, setMostrarModalConfirmacao] = useState(false);
   const [mostrarModalSucesso, setMostrarModalSucesso] = useState(false);
-  const [pedidos] = useState([
-    { item: 'Hamburguer Clássico', quantidade: 4, preco: 22.00 },
-    { item: 'Coca Cola', quantidade: 4, preco: 8.00 },
-  ]);
+  const [pedidos, setPedidos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Carregar mesas da API
+  useEffect(() => {
+    carregarMesas();
+  }, []);
+
+  // Carregar pedidos quando uma mesa for selecionada
+  useEffect(() => {
+    if (mesaSelecionada) {
+      carregarPedidosDaMesa(mesaSelecionada.number);
+    } else {
+      setPedidos([]);
+    }
+  }, [mesaSelecionada]);
+
+  const carregarMesas = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/tables`);
+      const tables = await response.json();
+      
+      console.log('Mesas recebidas da API:', tables);
+      
+      // Processar mesas com seus valores
+      const mesasComValores = await Promise.all(
+        tables.map(async (table) => {
+          const valor = await calcularValorMesa(table.number);
+          return {
+            id: table.number,
+            number: table.number,
+            valor: valor,
+            status: table.status === 'disponível' ? 'disponível' : 'ocupada'
+          };
+        })
+      );
+      
+      console.log('Mesas processadas:', mesasComValores);
+      setMesas(mesasComValores);
+    } catch (error) {
+      console.error('Erro ao carregar mesas:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calcularValorMesa = async (tableNumber) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders`);
+      const orders = await response.json();
+      
+      // Filtrar pedidos pendentes da mesa
+      const pedidosDaMesa = orders.filter(
+        order => order.tableNumber === tableNumber && order.status === 'pendente'
+      );
+      
+      if (pedidosDaMesa.length === 0) return 0;
+      
+      // Buscar order-items de cada pedido
+      let valorTotal = 0;
+      for (const order of pedidosDaMesa) {
+        const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
+        const allItems = await itemsResponse.json();
+        
+        const itensDoPedido = allItems.filter(item => item.orderId === order.id);
+        
+        itensDoPedido.forEach(item => {
+          valorTotal += item.dish.price * item.quantity;
+        });
+      }
+      
+      return valorTotal;
+    } catch (error) {
+      console.error('Erro ao calcular valor da mesa:', error);
+      return 0;
+    }
+  };
+
+  const carregarPedidosDaMesa = async (tableNumber) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/orders`);
+      const orders = await response.json();
+      
+      // Filtrar pedidos pendentes da mesa
+      const pedidosDaMesa = orders.filter(
+        order => order.tableNumber === tableNumber && order.status === 'pendente'
+      );
+      
+      if (pedidosDaMesa.length === 0) {
+        setPedidos([]);
+        return;
+      }
+      
+      // Buscar todos os order-items dos pedidos
+      const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
+      const allItems = await itemsResponse.json();
+      
+      const todosItens = [];
+      pedidosDaMesa.forEach(order => {
+        const itensDoPedido = allItems.filter(item => item.orderId === order.id);
+        todosItens.push(...itensDoPedido);
+      });
+      
+      // Formatar os itens para exibição
+      const pedidosFormatados = todosItens.map(item => ({
+        item: item.dish.name,
+        quantidade: item.quantity,
+        preco: item.dish.price,
+        observacoes: item.observations
+      }));
+      
+      setPedidos(pedidosFormatados);
+    } catch (error) {
+      console.error('Erro ao carregar pedidos da mesa:', error);
+      setPedidos([]);
+    }
+  };
 
   const selecionarMesa = (mesa) => {
-    if (mesa.status === 'ocupada') {
+    // Permitir selecionar mesa se tiver valor > 0 (tem pedidos pendentes)
+    if (mesa.valor > 0) {
       setMesaSelecionada(mesa);
     }
   };
@@ -88,7 +179,7 @@ export default function CaixaPage() {
     // Informações da mesa
     yPosition += 15;
     doc.setFontSize(14);
-    doc.text(`Mesa: ${mesaSelecionada.numero}`, margemEsquerda, yPosition);
+    doc.text(`Mesa: ${mesaSelecionada.number}`, margemEsquerda, yPosition);
     
     // Linha separadora
     yPosition += 10;
@@ -163,21 +254,99 @@ export default function CaixaPage() {
     doc.text('Volte sempre!', margemEsquerda, yPosition);
     
     // Salvar o PDF
-    const nomeArquivo = `recibo_mesa_${mesaSelecionada.numero}_${new Date().getTime()}.pdf`;
+    const nomeArquivo = `recibo_mesa_${mesaSelecionada.number}_${new Date().getTime()}.pdf`;
     doc.save(nomeArquivo);
   };
 
-  const confirmarFechamento = () => {
-    // Gerar o recibo em PDF antes de fechar a conta
-    gerarReciboPDF();
+  const confirmarFechamento = async () => {
+    if (!mesaSelecionada) return;
     
-    setMesas(mesas.map(mesa => 
-      mesa.id === mesaSelecionada.id 
-        ? { ...mesa, valor: 0, status: 'vazia' }
-        : mesa
-    ));
-    setMostrarModalConfirmacao(false);
-    setMostrarModalSucesso(true);
+    try {
+      console.log('Iniciando fechamento da mesa:', mesaSelecionada.number);
+      
+      // Gerar o recibo em PDF antes de fechar a conta
+      gerarReciboPDF();
+      
+      // Buscar pedidos da mesa para atualizar o status
+      const ordersResponse = await fetch(`${API_BASE_URL}/orders`);
+      const orders = await ordersResponse.json();
+      
+      console.log('Todos os pedidos:', orders);
+      
+      const pedidosDaMesa = orders.filter(
+        order => order.tableNumber === mesaSelecionada.number && order.status === 'pendente'
+      );
+      
+      console.log('Pedidos da mesa para finalizar:', pedidosDaMesa);
+      
+      // Atualizar status de cada pedido para 'pago' e zerar valores dos itens
+      for (const order of pedidosDaMesa) {
+        // Atualizar status do pedido para 'pago'
+        const response = await fetch(`${API_BASE_URL}/orders/${order.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            tableNumber: order.tableNumber,
+            status: 'pago',
+            userId: order.userId
+          })
+        });
+        console.log(`Pedido ${order.id} atualizado para 'pago':`, response.ok);
+        
+        // Buscar e zerar os valores dos order-items deste pedido
+        const itemsResponse = await fetch(`${API_BASE_URL}/order-items`);
+        const allItems = await itemsResponse.json();
+        
+        const itensDoPedido = allItems.filter(item => item.orderId === order.id);
+        
+        for (const item of itensDoPedido) {
+          // Zerar o valor do item (definir preço como 0)
+          await fetch(`${API_BASE_URL}/order-items/${item.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+              orderId: item.orderId,
+              dishId: item.dishId,
+              quantity: item.quantity,
+              observations: item.observations
+            })
+          });
+          console.log(`Item ${item.id} zerado`);
+        }
+      }
+      
+      // Atualizar status da mesa para disponível
+      const mesaResponse = await fetch(`${API_BASE_URL}/tables/${mesaSelecionada.number}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          number: mesaSelecionada.number,
+          status: 'disponível' 
+        })
+      });
+      
+      console.log('Mesa atualizada:', mesaResponse.ok);
+      
+      // Fechar modal e limpar seleção antes de recarregar
+      setMostrarModalConfirmacao(false);
+      setMesaSelecionada(null);
+      
+      // Recarregar mesas após um pequeno delay
+      setTimeout(async () => {
+        await carregarMesas();
+        setMostrarModalSucesso(true);
+      }, 300);
+      
+    } catch (error) {
+      console.error('Erro ao fechar conta:', error);
+      alert('Erro ao fechar a conta. Tente novamente.');
+    }
   };
 
   const cancelarFechamento = () => {
@@ -216,21 +385,32 @@ export default function CaixaPage() {
           </div>
 
           <div className={styles.mapaMesas}>
-            {mesas.map(mesa => (
-              <button
-                key={mesa.id}
-                className={`${styles.mesa} ${styles[mesa.status]} ${
-                  mesaSelecionada?.id === mesa.id ? styles.selecionada : ''
-                }`}
-                onClick={() => selecionarMesa(mesa)}
-                disabled={mesa.status === 'vazia'}
-              >
-                <span className={styles.mesaNumero}>Mesa {mesa.numero}</span>
-                <span className={styles.mesaValor}>
-                  R${mesa.valor.toFixed(2).replace('.', ',')}
-                </span>
-              </button>
-            ))}
+            {loading ? (
+              <div className={styles.loading}>Carregando mesas...</div>
+            ) : mesas.length === 0 ? (
+              <div className={styles.loading}>Nenhuma mesa encontrada</div>
+            ) : (
+              mesas.map(mesa => {
+                const temPedidos = mesa.valor > 0;
+                const statusVisual = temPedidos ? 'ocupada' : 'disponível';
+                
+                return (
+                  <button
+                    key={mesa.id}
+                    className={`${styles.mesa} ${styles[statusVisual]} ${
+                      mesaSelecionada?.id === mesa.id ? styles.selecionada : ''
+                    }`}
+                    onClick={() => selecionarMesa(mesa)}
+                    disabled={!temPedidos}
+                  >
+                    <span className={styles.mesaNumero}>Mesa {mesa.number}</span>
+                    <span className={styles.mesaValor}>
+                      R${mesa.valor.toFixed(2).replace('.', ',')}
+                    </span>
+                  </button>
+                );
+              })
+            )}
           </div>
         </div>
 
@@ -239,15 +419,24 @@ export default function CaixaPage() {
           <div className={`${styles.drawer} ${mesaSelecionada ? styles.drawerOpen : ''}`}>
             <div className={styles.fechamento}>
               <h2 className={styles.fechamentoTitulo}>
-                Fechamento da conta - Mesa {mesaSelecionada.numero}
+                Fechamento da conta - Mesa {mesaSelecionada.number}
               </h2>
 
               <div className={styles.pedidos}>
-                {pedidos.map((pedido, index) => (
-                  <div key={index} className={styles.pedidoItem}>
-                    {pedido.quantidade}x {pedido.item} – R${pedido.preco.toFixed(2).replace('.', ',')}
-                  </div>
-                ))}
+                {pedidos.length === 0 ? (
+                  <div className={styles.pedidoItem}>Carregando pedidos...</div>
+                ) : (
+                  pedidos.map((pedido, index) => (
+                    <div key={index} className={styles.pedidoItem}>
+                      {pedido.quantidade}x {pedido.item} – R${pedido.preco.toFixed(2).replace('.', ',')}
+                      {pedido.observacoes && (
+                        <div style={{ fontSize: '0.85em', color: '#666', marginTop: '4px' }}>
+                          Obs: {pedido.observacoes}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
               </div>
 
               <div className={styles.totais}>
@@ -308,7 +497,7 @@ export default function CaixaPage() {
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <h3 className={styles.modalTitulo}>Confirmar Fechamento</h3>
             <p className={styles.modalTexto}>
-              Deseja fechar a conta da Mesa {mesaSelecionada?.numero}?
+              Deseja fechar a conta da Mesa {mesaSelecionada?.number}?
             </p>
             <div className={styles.modalValor}>
               Total: R${calcularTotal().toFixed(2).replace('.', ',')}

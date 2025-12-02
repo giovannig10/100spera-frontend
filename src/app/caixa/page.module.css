@@ -110,7 +110,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.mesa.vazia {
+.mesa.vazia,
+.mesa.disponível {
   background-color: var(--cor-terciaria);
   cursor: not-allowed;
   opacity: 0.7;
@@ -481,4 +482,15 @@
   font-size: 2rem;
   font-weight: bold;
   margin: 0 auto 1rem auto;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1.1rem;
+  width: 100%;
+  text-align: center;
 }
