@@ -464,7 +464,7 @@ export default function Home() {
           lastError = err;
         }
       }
-
+      //
       if (!orderResponse) {
         throw lastError || new Error("Não foi possível criar pedido");
       }
