@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import styles from "./orderCard.module.css";
+import Timer from "../timer";
 
 export default function OrderCard({ order, orderItems, onUpdate }) {
 
@@ -12,6 +13,31 @@ export default function OrderCard({ order, orderItems, onUpdate }) {
 
     const [orderStatus, setOrderStatus] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [elapsedTime, setElapsedTime] = useState(0);
+
+    useEffect(() => {
+        const startTime = new Date(order.createdAt).getTime(); // Assumindo que order tem createdAt
+
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const diff = Math.floor((now - startTime) / 1000); // diferença em segundos
+            setElapsedTime(diff);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [order.createdAt]);
+
+    // Função para formatar o tempo (MM:SS ou HH:MM:SS)
+    const formatTime = (seconds) => {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    };
 
     const handleStatusChange = async () => {
         let newStatus = "";
@@ -73,6 +99,7 @@ export default function OrderCard({ order, orderItems, onUpdate }) {
             </div>
             <div className={styles.contentContainer}>
                 <h1 className={styles.orderDetails}>Mesa {order.tableNumber}</h1>
+                <Timer filteredOrderItems={filteredOrderItems} elapsedTime={elapsedTime} formatTime={formatTime} />
                 {filteredOrderItems.map((item) => (
                     <div key={item.id} className={styles.orderItemContainer}>
                         <div className={styles.itemsBox}>
