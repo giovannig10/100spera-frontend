@@ -137,9 +137,16 @@ export default function Home() {
           produtosOrganizados.entrada.push(produto);
         } else if (nomeCategoria.includes("combo")) {
           produtosOrganizados.combos.push(produto);
-        } else if (nomeCategoria.includes("prato") || nomeCategoria.includes("principal") || nomeCategoria.includes("pratos")) {
+        } else if (
+          nomeCategoria.includes("prato") ||
+          nomeCategoria.includes("principal") ||
+          nomeCategoria.includes("pratos")
+        ) {
           produtosOrganizados.pratoPrincipal.push(produto);
-        } else if (nomeCategoria.includes("bebida") && !nomeCategoria.includes("drink")) {
+        } else if (
+          nomeCategoria.includes("bebida") &&
+          !nomeCategoria.includes("drink")
+        ) {
           produtosOrganizados.bebidas.push(produto);
         } else if (nomeCategoria.includes("drink")) {
           produtosOrganizados.drinks.push(produto);
@@ -390,18 +397,100 @@ export default function Home() {
       console.log("Mesa:", mesaSelecionada);
       console.log("Itens:", itensPedido);
 
-      // PASSO 1: Criar apenas o pedido (Order) SEM os itens
-      const orderData = {
-        tableNumber: parseInt(mesaSelecionada),
-        userId: 43, // vitor sampaio (garçom) - TODO: pegar do usuário logado
-        status: "pendente",
-      };
+      // Buscar um userId válido dinamicamente (não depender de hardcoded)
+      let resolvedUserId = 1; // fallback
+      try {
+        const usersResp = await axios.get(`${API_URL}/users`);
+        const usersData = Array.isArray(usersResp.data)
+          ? usersResp.data
+          : usersResp.data?.users || usersResp.data?.data || [];
 
-      console.log("PASSO 1: Criando Order:", orderData);
-      console.log("URL:", `${API_URL}/orders`);
+        if (usersData && usersData.length > 0) {
+          // Tentar encontrar um garçom
+          const garcomUser = usersData.find((u) =>
+            String(u.type || "")
+              .toLowerCase()
+              .includes("garc")
+          );
+          const pickedUser = garcomUser || usersData[0];
+          resolvedUserId = pickedUser.id || pickedUser._id || 1;
+          console.log(
+            "✓ Usando userId:",
+            resolvedUserId,
+            "(",
+            pickedUser.name || "N/A",
+            ")"
+          );
+        }
+      } catch (e) {
+        console.warn(
+          "⚠ Não foi possível buscar usuários, usando fallback userId=1"
+        );
+      }
 
-      const orderResponse = await axios.post(`${API_URL}/orders`, orderData);
-      const orderId = orderResponse.data.id;
+      // Verificar se a mesa existe, se não, tentar criar
+      try {
+        const tablesResp = await axios.get(`${API_URL}/tables`);
+        const tablesData = Array.isArray(tablesResp.data)
+          ? tablesResp.data
+          : tablesResp.data?.tables || tablesResp.data?.data || [];
+
+        const tableExists = tablesData.find(
+          (t) => Number(t.number) === Number(mesaSelecionada)
+        );
+
+        if (!tableExists) {
+          console.log("⚠ Mesa não existe no banco, tentando criar...");
+          try {
+            await axios.post(`${API_URL}/tables`, {
+              number: Number(mesaSelecionada),
+            });
+            console.log("✓ Mesa criada no backend");
+          } catch (createErr) {
+            console.warn("⚠ Não foi possível criar mesa automaticamente");
+          }
+        }
+      } catch (e) {
+        console.warn("⚠ Não foi possível verificar mesas");
+      }
+
+      // PASSO 1: Criar o pedido (tentar diferentes formatos de payload)
+      const orderPayloads = [
+        {
+          tableNumber: parseInt(mesaSelecionada),
+          userId: parseInt(resolvedUserId),
+          status: "pendente",
+        },
+        {
+          table_number: parseInt(mesaSelecionada),
+          user_id: parseInt(resolvedUserId),
+          status: "pendente",
+        },
+      ];
+
+      let orderResponse = null;
+      let lastError = null;
+
+      for (const payload of orderPayloads) {
+        try {
+          console.log("Tentando criar order com:", payload);
+          orderResponse = await axios.post(`${API_URL}/orders`, payload);
+          console.log("✓ Order criado!");
+          break;
+        } catch (err) {
+          lastError = err;
+          console.warn("Falhou com este payload:", err?.response?.data);
+        }
+      }
+
+      if (!orderResponse) {
+        throw lastError || new Error("Não foi possível criar pedido");
+      }
+
+      const orderId =
+        orderResponse.data?.id ||
+        orderResponse.data?._id ||
+        orderResponse.data?.orderId;
 
       console.log("✓ Order criado com ID:", orderId);
       // PASSO 2: Adicionar os itens ao pedido
@@ -668,7 +757,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("entrada")}
                   >
-                    Entradas
+                    🍟
                   </button>
                   <button
                     className={
@@ -678,7 +767,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("pratoPrincipal")}
                   >
-                    Prato Principal
+                    🍔
                   </button>
                   <button
                     className={
@@ -688,16 +777,9 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("sobremesas")}
                   >
-                    Sobremesas
+                    🧁
                   </button>
-                  <button
-                    className={
-                      categoriaAtiva === "combos" ? styles.abaAtiva : styles.aba
-                    }
-                    onClick={() => setCategoriaAtiva("combos")}
-                  >
-                    Combos
-                  </button>
+
                   <button
                     className={
                       categoriaAtiva === "bebidas"
@@ -706,7 +788,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("bebidas")}
                   >
-                    Bebidas
+                    🥤
                   </button>
                   <button
                     className={
@@ -714,7 +796,15 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("drinks")}
                   >
-                    Drinks
+                    🍸
+                  </button>
+                  <button
+                    className={
+                      categoriaAtiva === "combos" ? styles.abaAtiva : styles.aba
+                    }
+                    onClick={() => setCategoriaAtiva("combos")}
+                  >
+                    🍟 🥤 🍔
                   </button>
                 </div>
 
