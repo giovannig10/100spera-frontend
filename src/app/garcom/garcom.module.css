@@ -87,7 +87,7 @@
 
 .mesaButton {
   background-color: #445D43;
-  color: #e7e7e7;
+  color: #d1cfa0;
   border: none;
   border-radius: 30px;
   padding: 1.5rem 1rem;
@@ -128,7 +128,7 @@
 
 .mesaButtonSelecionada {
   background-color: #e7e7e7;
-  color: #445D43;
+  color: #d1cfa0;
   border: none;
   border-radius: 30px;
   padding: 1.5rem 1rem;
