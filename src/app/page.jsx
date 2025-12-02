@@ -2,8 +2,9 @@
 
 import styles from "./page.module.css";
 import Image from "next/image";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Swal from 'sweetalert2';
 
 export default function Home() {
     const [accessCode, setAccessCode] = useState("");
@@ -11,6 +12,32 @@ export default function Home() {
     const [carregando, setCarregando] = useState(false);
     const [mostrarSenha, setMostrarSenha] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const error = searchParams.get('error');
+
+        if (error === 'login_required') {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Login Necessário',
+                text: 'Você precisa fazer login para acessar essa página!',
+                confirmButtonColor: '#d0e3c3',
+            });
+        } else if (error === 'unauthorized') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acesso Negado',
+                text: 'Você não tem acesso a essa página!',
+                confirmButtonColor: '#d0e3c3',
+            });
+        }
+
+        // Limpa os parâmetros da URL
+        if (error) {
+            window.history.replaceState({}, '', '/');
+        }
+    }, [searchParams]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -42,10 +69,15 @@ export default function Home() {
                 throw new Error('Resposta inválida do servidor');
             }
             
+            // Salvar no localStorage
             localStorage.setItem('token', data.token);
             localStorage.setItem('tipoUsuario', data.userExists.type);
             localStorage.setItem('userId', data.userExists.id.toString());
             localStorage.setItem('userName', data.userExists.name);
+            
+            // Salvar nos cookies para o middleware
+            document.cookie = `token=${data.token}; path=/; max-age=86400`;
+            document.cookie = `tipoUsuario=${data.userExists.type}; path=/; max-age=86400`;
             
             switch(data.userExists.type.toLowerCase()) {
                 case 'garcom':
@@ -69,7 +101,7 @@ export default function Home() {
             
         } catch (error) {
             if (error.message.includes("Failed to fetch")) {
-                setErro("Não foi possível conectar ao servidor. Verifique se o backend está rodando.");
+                setErro("Não foi possível conectar ao servidor");
             } else if (error.message.includes("deu pau aqui")) {
                 setErro("Código de acesso incorreto. Verifique e tente novamente.");
             } else {
