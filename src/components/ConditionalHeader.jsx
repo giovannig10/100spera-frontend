@@ -5,13 +5,13 @@ import Header from "./header";
 
 export default function ConditionalHeader() {
   const pathname = usePathname();
-  
-  // Lista de rotas onde o Header NÃO deve aparecer
-  const routesWithoutHeader = ["/"];
-  
-  if (routesWithoutHeader.includes(pathname)) {
-    return null;
+
+  // Lista de rotas onde o Header DEVE aparecer
+  const routesWithHeader = ["/garcom", "/caixa", "/cozinha", "/adm"];
+
+  if (routesWithHeader.includes(pathname)) {
+    return <Header />;
   }
-  
-  return <Header />;
+
+  return null;
 }
