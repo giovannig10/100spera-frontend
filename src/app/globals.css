@@ -1,10 +1,12 @@
 :root {
   --font-nunito: var(--font-nunito);
-  --cor-primaria: #678b66;
-  --cor-secundaria: #73946b;
-  --cor-terciaria: #9ebc8a;
-  --cor-quaternaria: #d1cfa0;
-  --cor-quinaria: #e7e7e7;
+  --cor-primaria: #445d42;
+  --cor-secundaria: #537d5d;
+  --cor-terciaria: #678b66;
+  --cor-quaternaria: #73946b;
+  --cor-quinaria: #9ebc8a;
+  --cor-sextiaria: #d1cfa0;
+  --cor-septiaria: #e7e7e7;
   --cor-fundo: #d0e3c3;
 }
 

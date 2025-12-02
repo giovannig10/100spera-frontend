@@ -1,13 +1,23 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #f5f5dc 0%, #e7e7e7 100%);
+  background-color: var(--cor-fundo);
 }
 
 .content {
   display: flex;
-  gap: 2rem;
-  padding: 2rem;
-  height: calc(100vh - 100px);
+  gap: 0; /* aproxima os painéis como no mock */
+  padding: 1.5rem; /* margens mais compactas */
+  min-height: calc(100vh - 96px);
+}
+
+.withDrawer .leftPanel {
+  transform: scale(0.97);
+  transform-origin: left center;
+  transition: transform 0.25s ease-out;
+}
+
+.withDrawer .mapaMesas {
+  gap: 0.9rem; /* ligeiro ajuste de densidade quando reduzido */
 }
 
 .leftPanel {
@@ -15,28 +25,33 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding-right: 1.25rem; /* separação do painel direito */
 }
+
+.rightPlaceholder { display: none; }
 
 .legenda {
   background-color: rgba(255, 255, 255, 0.5);
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* título alinhado à esquerda */
+  position: relative;
+  z-index: 1;
 }
 
 .legendaTitle {
   font-weight: 600;
   display: block;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   color: #333;
 }
 
 .legendaItens {
   display: flex;
-  gap: 2rem;
-  justify-content: center;
+  gap: 1.5rem;
+  justify-content: flex-start;
 }
 
 .legendaItem {
@@ -48,45 +63,46 @@
 }
 
 .legendaCor {
-  width: 24px;
-  height: 24px;
+  width: 20px; /* levemente menor como no mock */
+  height: 20px;
   border-radius: 4px;
   display: inline-block;
 }
 
 .legendaCor.ocupada {
-  background-color: #445D43;
+  background-color: var(--cor-primaria);
 }
 
 .legendaCor.vazia {
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
 }
 
 .legendaCor.selecionada {
-  background-color: #e7e7e7;
+  background-color: var(--cor-quinaria);
 }
 
 .mapaMesas {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  flex: 1;
+  gap: 1rem 1rem; /* espaçamento uniforme */
+  padding-top: 0.5rem;
 }
 
 .mesa {
-  background-color: #445D43;
+  background-color: var(--cor-primaria);
   border: none;
-  border-radius: 30px;
-  padding: 1.5rem 1rem;
+  border-radius: 24px; /* pílula mais próxima ao mock */
+  padding: 0.75rem 0.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
-  color: #e7e7e7;
+  color: var(--cor-sextiaria);
   font-family: inherit;
+  position: relative;
+  min-height: 78px; /* altura visual aproximada do mock */
 }
 
 .mesa:hover:not(:disabled) {
@@ -95,15 +111,15 @@
 }
 
 .mesa.vazia {
-  background-color: #73946b;
+  background-color: var(--cor-terciaria);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .mesa.selecionada {
-  background-color: #e7e7e7;
-  color: #445D43;
-  border: 3px solid #445D43;
+  background-color: var(--cor-quinaria);
+  color: var(--cor-primaria);
+  border: 3px solid var(--cor-primaria);
   font-weight: 600;
 }
 
@@ -112,22 +128,62 @@
 }
 
 .mesaNumero {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .mesaValor {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
 }
 
 .rightPanel {
-  width: 400px;
-  background-color: #73946b;
+  width: 420px;
+  background-color: var(--cor-secundaria);
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   color: white;
   display: flex;
   flex-direction: column;
+  box-shadow: -8px 0 0 rgba(0,0,0,0.06);
+}
+
+/* Drawer lateral */
+.drawer {
+  width: 460px; /* fundo cinza + padding */
+  background: #e6e6e6;
+  padding: 0.75rem;
+  height: 100%;
+  transform: translateX(100%);
+  transition: transform 0.25s ease-out;
+  display: flex;
+  position: fixed;
+  top: 0;
+  right: 0;
+  overflow: hidden;
+  z-index: 100; /* parte do fluxo (sem overlay) */
+  flex-direction: column;
+}
+
+.drawerOpen {
+  transform: translateX(0);
+}
+
+.drawer .fechamento {
+  width: 420px;
+  background-color: var(--cor-secundaria);
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+.acoesBelow {
+  width: 420px;
+  margin-top: 0.75rem;
+}
+.acoes {
+  display: flex;
+  gap: 1rem;
 }
 
 .fechamento {
@@ -138,10 +194,10 @@
 }
 
 .fechamentoTitulo {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
   margin: 0;
-  text-align: center;
+  text-align: left; /* alinhado à esquerda como no mock */
 }
 
 .pedidos {
@@ -202,12 +258,12 @@
   width: 24px;
   height: 24px;
   cursor: pointer;
-  accent-color: #e7e7e7;
+  accent-color: var(--cor-quinaria);
 }
 
 .taxaValor {
   font-size: 0.95rem;
-  color: #e7e7e7;
+  color: var(--cor-quinaria);
 }
 
 .acoes {
@@ -230,24 +286,27 @@
 }
 
 .btnFechar {
-  background-color: #445D43;
-  color: #e7e7e7;
+  background-color: var(--cor-primaria);
+  color: var(--cor-quinaria);
 }
 
 .btnFechar:hover {
-  background-color: #354a35;
+  background-color: var(--cor-primaria);
+  opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btnCancelar {
-  background-color: transparent;
+  background-color: var(--cor-secundaria);
   color: white;
-  border: 2px solid white;
 }
 
 .btnCancelar:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+   background-color: var(--cor-secundaria);
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .semSelecao {
@@ -334,7 +393,7 @@
 .modalTitulo {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #445D43;
+  color: var(--cor-primaria);
   margin: 0 0 1rem 0;
   text-align: center;
 }
@@ -348,12 +407,12 @@
 }
 
 .modalValor {
-  background-color: #e7e7e7;
+  background-color: var(--cor-quinaria);
   padding: 1rem;
   border-radius: 8px;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #445D43;
+  color: var(--cor-primaria);
   text-align: center;
   margin-bottom: 1.5rem;
 }
@@ -378,18 +437,19 @@
 }
 
 .modalBtnConfirmar {
-  background-color: #445D43;
+  background-color: var(--cor-primaria);
   color: white;
 }
 
 .modalBtnConfirmar:hover {
-  background-color: #354a35;
+  background-color: var(--cor-primaria);
+  opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .modalBtnCancelar {
-  background-color: #e7e7e7;
+  background-color: var(--cor-quinaria);
   color: #333;
 }
 
@@ -398,12 +458,13 @@
 }
 
 .modalBtnOk {
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
   color: white;
 }
 
 .modalBtnOk:hover {
-  background-color: #5f7a58;
+  background-color: var(--cor-secundaria);
+  opacity: 0.9;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -411,7 +472,7 @@
 .modalIcone {
   width: 64px;
   height: 64px;
-  background-color: #73946b;
+  background-color: var(--cor-secundaria);
   color: white;
   border-radius: 50%;
   display: flex;
