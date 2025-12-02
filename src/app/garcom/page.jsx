@@ -393,10 +393,6 @@ export default function Home() {
 
   const confirmarEnvio = async () => {
     try {
-      console.log("=== ENVIANDO PEDIDO ===");
-      console.log("Mesa:", mesaSelecionada);
-      console.log("Itens:", itensPedido);
-
       // Buscar um userId válido dinamicamente (não depender de hardcoded)
       let resolvedUserId = 1; // fallback
       try {
@@ -414,18 +410,9 @@ export default function Home() {
           );
           const pickedUser = garcomUser || usersData[0];
           resolvedUserId = pickedUser.id || pickedUser._id || 1;
-          console.log(
-            "✓ Usando userId:",
-            resolvedUserId,
-            "(",
-            pickedUser.name || "N/A",
-            ")"
-          );
         }
       } catch (e) {
-        console.warn(
-          "⚠ Não foi possível buscar usuários, usando fallback userId=1"
-        );
+        // Fallback para userId=1
       }
 
       // Verificar se a mesa existe, se não, tentar criar
@@ -440,18 +427,16 @@ export default function Home() {
         );
 
         if (!tableExists) {
-          console.log("⚠ Mesa não existe no banco, tentando criar...");
           try {
             await axios.post(`${API_URL}/tables`, {
               number: Number(mesaSelecionada),
             });
-            console.log("✓ Mesa criada no backend");
           } catch (createErr) {
-            console.warn("⚠ Não foi possível criar mesa automaticamente");
+            // Não foi possível criar mesa automaticamente
           }
         }
       } catch (e) {
-        console.warn("⚠ Não foi possível verificar mesas");
+        // Não foi possível verificar mesas
       }
 
       // PASSO 1: Criar o pedido (tentar diferentes formatos de payload)
@@ -473,13 +458,10 @@ export default function Home() {
 
       for (const payload of orderPayloads) {
         try {
-          console.log("Tentando criar order com:", payload);
           orderResponse = await axios.post(`${API_URL}/orders`, payload);
-          console.log("✓ Order criado!");
           break;
         } catch (err) {
           lastError = err;
-          console.warn("Falhou com este payload:", err?.response?.data);
         }
       }
 
@@ -492,10 +474,6 @@ export default function Home() {
         orderResponse.data?._id ||
         orderResponse.data?.orderId;
 
-      console.log("✓ Order criado com ID:", orderId);
-      // PASSO 2: Adicionar os itens ao pedido
-      console.log("PASSO 2: Adicionando itens ao pedido...");
-
       const itemsAdicionados = [];
       const itemsComErro = [];
 
@@ -507,8 +485,6 @@ export default function Home() {
           observations: observacoes || "",
         };
 
-        console.log("Tentando adicionar item:", orderItemData);
-
         // Tentar diferentes endpoints para criar OrderItems
         let itemCriado = false;
         let ultimoErro = null;
@@ -517,11 +493,9 @@ export default function Home() {
         if (!itemCriado) {
           try {
             await axios.post(`${API_URL}/order-items`, orderItemData);
-            console.log("✓ Item adicionado via /order-items");
             itemCriado = true;
           } catch (err) {
             ultimoErro = err;
-            console.log("Endpoint /order-items não funcionou");
           }
         }
 
@@ -529,11 +503,9 @@ export default function Home() {
         if (!itemCriado) {
           try {
             await axios.post(`${API_URL}/orderItems`, orderItemData);
-            console.log("✓ Item adicionado via /orderItems");
             itemCriado = true;
           } catch (err) {
             ultimoErro = err;
-            console.log("Endpoint /orderItems não funcionou");
           }
         }
 
@@ -544,11 +516,9 @@ export default function Home() {
               `${API_URL}/orders/${orderId}/items`,
               orderItemData
             );
-            console.log("✓ Item adicionado via /orders/:id/items");
             itemCriado = true;
           } catch (err) {
             ultimoErro = err;
-            console.log("Endpoint /orders/:id/items não funcionou");
           }
         }
 
@@ -556,17 +526,8 @@ export default function Home() {
           itemsAdicionados.push(item.nome);
         } else {
           itemsComErro.push(item.nome);
-          console.error(
-            "✗ Não foi possível adicionar item:",
-            item.nome,
-            ultimoErro
-          );
         }
       }
-
-      console.log(
-        `Items adicionados: ${itemsAdicionados.length}/${itensPedido.length}`
-      );
 
       setMostrarModalConfirmacao(false);
 
@@ -584,11 +545,6 @@ export default function Home() {
 
       setMostrarModalSucesso(true);
     } catch (error) {
-      console.error("✗ ERRO AO CRIAR PEDIDO");
-      console.error("Erro completo:", error);
-      console.error("Response data:", error.response?.data);
-      console.error("Response status:", error.response?.status);
-
       let mensagemErro = "Erro desconhecido ao criar pedido";
 
       if (error.response) {
