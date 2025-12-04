@@ -99,7 +99,7 @@ export default function OrderCard({ order, orderItems, onUpdate }) {
             </div>
             <div className={styles.contentContainer}>
                 <h1 className={styles.orderDetails}>Mesa {order.tableNumber}</h1>
-                <Timer filteredOrderItems={filteredOrderItems} elapsedTime={elapsedTime} formatTime={formatTime} />
+                <Timer elapsedTime={elapsedTime} formatTime={formatTime} />
                 {filteredOrderItems.map((item) => (
                     <div key={item.id} className={styles.orderItemContainer}>
                         <div className={styles.itemsBox}>
