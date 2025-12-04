@@ -10,13 +10,18 @@ export default function AdminPage() {
                     <h1 className={styles.title}>Funcionários</h1>
                 </div>
 
-                <div className={styles.categoryContainer}></div>
+                <div className={styles.categoryContainer}>
+                    <p className={styles.categoryTitle}>Entrada</p>
+                    <p className={styles.categoryTitle}>Entrada</p>
+                    <p className={styles.categoryTitle}>Entrada</p>
+                    <p className={styles.categoryTitle}>Entrada</p>
+                    <p className={styles.categoryTitle}>Entrada</p>
+                </div>
             </div>
-            <div className={styles.button}>
-                <button className={styles.buttonAdicionar}>
+                <button className={styles.button}>
                     <p className={styles.buttonText}>Adicionar </p> <span className={styles.emoji}>+</span>
                 </button>
-            </div>
+    
         </div>
     </main>
   );
