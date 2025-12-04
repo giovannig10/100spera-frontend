@@ -713,7 +713,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("entrada")}
                   >
-                    🍟
+                    Entrada
                   </button>
                   <button
                     className={
@@ -723,7 +723,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("pratoPrincipal")}
                   >
-                    🍔
+                    Prato Principal
                   </button>
                   <button
                     className={
@@ -733,7 +733,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("sobremesas")}
                   >
-                    🧁
+                    Sobremesas
                   </button>
 
                   <button
@@ -744,7 +744,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("bebidas")}
                   >
-                    🥤
+                    Bebidas
                   </button>
                   <button
                     className={
@@ -752,7 +752,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("drinks")}
                   >
-                    🍸
+                    Drinks
                   </button>
                   <button
                     className={
@@ -760,7 +760,7 @@ export default function Home() {
                     }
                     onClick={() => setCategoriaAtiva("combos")}
                   >
-                    🍟 🥤 🍔
+                    Combos
                   </button>
                 </div>
 
