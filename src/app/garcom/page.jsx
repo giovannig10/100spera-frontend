@@ -49,10 +49,14 @@ export default function Home() {
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/100spera";
 
-  // Carregar produtos ao montar o componente
+  // Carregar produtos e mesas ao montar o componente
   useEffect(() => {
-    carregarProdutos();
-    carregarEstadoMesas();
+    const inicializar = async () => {
+      await carregarProdutos();
+      await carregarEstadoMesas();
+    };
+    inicializar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const carregarProdutos = async () => {
@@ -64,9 +68,6 @@ export default function Home() {
         axios.get(`${API_URL}/categories`),
         axios.get(`${API_URL}/dishes`),
       ]);
-
-      console.log("Categorias recebidas:", categoriasResponse.data);
-      console.log("Pratos recebidos:", pratosResponse.data);
 
       // Organizar produtos por categoria
       const produtosOrganizados = {
@@ -88,11 +89,7 @@ export default function Home() {
         ? pratosResponse.data
         : pratosResponse.data?.dishes || pratosResponse.data?.data || [];
 
-      console.log("Total de categorias:", categorias.length);
-      console.log("Total de pratos:", pratos.length);
-
       if (!Array.isArray(pratos) || pratos.length === 0) {
-        console.error("Nenhum prato encontrado");
         throw new Error("Nenhum prato disponível");
       }
 
@@ -109,12 +106,8 @@ export default function Home() {
         categoriaMap[cat.id] = normalize(cat.name || cat.nome || "");
       });
 
-      console.log("Mapa de categorias:", categoriaMap);
-
       // Processar cada prato
-      pratos.forEach((prato, index) => {
-        console.log(`Processando prato ${index}:`, prato);
-
+      pratos.forEach((prato) => {
         const nomeCategoria = categoriaMap[prato.categoryId] || "";
 
         const produto = {
@@ -128,8 +121,6 @@ export default function Home() {
             "https://via.placeholder.com/80",
           descricao: prato.description || prato.descricao || "",
         };
-
-        console.log(`Prato "${produto.nome}" da categoria "${nomeCategoria}"`);
 
         // Mapear para as categorias do frontend (usando nomes normalizados)
         // nomes esperados no seed: Entrada, Pratos Principais, Sobremesas, Bebidas, drinks, combos
@@ -152,26 +143,12 @@ export default function Home() {
           produtosOrganizados.drinks.push(produto);
         } else if (nomeCategoria.includes("sobremesa")) {
           produtosOrganizados.sobremesas.push(produto);
-        } else {
-          console.warn(`Categoria não mapeada: "${nomeCategoria}"`);
         }
-      });
-
-      console.log("Produtos organizados final:", produtosOrganizados);
-      console.log("Total de produtos por categoria:", {
-        entrada: produtosOrganizados.entrada.length,
-        pratoPrincipal: produtosOrganizados.pratoPrincipal.length,
-        bebidas: produtosOrganizados.bebidas.length,
-        drinks: produtosOrganizados.drinks.length,
-        sobremesas: produtosOrganizados.sobremesas.length,
       });
 
       setProdutos(produtosOrganizados);
       setErro(null);
     } catch (error) {
-      console.error("Erro ao carregar produtos:", error);
-      console.error("Detalhes:", error.response?.data);
-      console.error("Status:", error.response?.status);
       setErro(`Erro ao carregar produtos: ${error.message}`);
 
       // Produtos de exemplo caso a API falhe
@@ -308,36 +285,109 @@ export default function Home() {
     }
   };
 
-  const carregarEstadoMesas = () => {
-    // Carregar estado das mesas do localStorage
-    const estadoSalvo = localStorage.getItem("estadoMesas");
-    if (estadoSalvo) {
-      setEstadoMesa(JSON.parse(estadoSalvo));
+  const carregarEstadoMesas = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/tables`);
+      const mesas = Array.isArray(response.data)
+        ? response.data
+        : response.data?.tables || response.data?.data || [];
+
+      // Mapear o status da API para o estado local
+      const novoEstado = {};
+      mesas.forEach((mesa) => {
+        const numero = mesa.number;
+        // Mapear status da API: "disponível" -> "vazia", "ocupada" -> "ocupada"
+        novoEstado[numero] =
+          mesa.status === "disponível" || mesa.status === "disponivel"
+            ? "vazia"
+            : "ocupada";
+      });
+
+      // Completar com mesas que não existem na API (até 24)
+      for (let i = 1; i <= 24; i++) {
+        if (!novoEstado[i]) {
+          novoEstado[i] = "vazia";
+        }
+      }
+
+      setEstadoMesa(novoEstado);
+    } catch (error) {
+      // Em caso de erro, manter todas vazias
     }
   };
 
-  const salvarEstadoMesas = (novoEstado) => {
-    localStorage.setItem("estadoMesas", JSON.stringify(novoEstado));
+  const atualizarStatusMesaAPI = async (numeroMesa, novoStatus) => {
+    try {
+      // Mapear status local para API: "vazia" -> "disponível", "ocupada" -> "ocupada"
+      const statusAPI =
+        novoStatus === "vazia" || novoStatus === "disponível"
+          ? "disponível"
+          : "ocupada";
+
+      const payload = { status: statusAPI };
+
+      // Tentar diferentes variações de endpoint
+      const endpoints = [
+        { method: 'patch', url: `${API_URL}/tables/${numeroMesa}` },
+        { method: 'put', url: `${API_URL}/tables/${numeroMesa}` },
+        { method: 'patch', url: `${API_URL}/tables/number/${numeroMesa}` },
+        { method: 'put', url: `${API_URL}/tables/number/${numeroMesa}` },
+      ];
+
+      let sucesso = false;
+      let ultimoErro = null;
+
+      for (const endpoint of endpoints) {
+        try {
+          if (endpoint.method === 'patch') {
+            await axios.patch(endpoint.url, payload);
+          } else {
+            await axios.put(endpoint.url, payload);
+          }
+          sucesso = true;
+          break;
+        } catch (err) {
+          ultimoErro = err;
+        }
+      }
+
+      if (!sucesso) {
+        throw ultimoErro;
+      }
+    } catch (error) {
+      throw error;
+    }
   };
 
   const handleMesaClick = (mesaNumero) => {
-    console.log("Mesa clicada:", mesaNumero);
     setMesaSelecionada(mesaNumero);
     setEtapa("escolherEstado");
   };
 
-  const handleEstadoClick = (estado) => {
-    const novoEstado = { ...estadoMesa, [mesaSelecionada]: estado };
-    setEstadoMesa(novoEstado);
-    salvarEstadoMesas(novoEstado);
+  const handleEstadoClick = async (estado) => {
+    try {
+      // Atualizar o estado local primeiro
+      const novoEstado = { ...estadoMesa, [mesaSelecionada]: estado };
+      setEstadoMesa(novoEstado);
 
-    if (estado === "ocupada") {
-      setEtapa("pedido");
-      setItensPedido([]);
-      setObservacoes("");
-    } else {
-      setEtapa(null);
-      setMesaSelecionada(null);
+      // Tentar atualizar na API
+      try {
+        await atualizarStatusMesaAPI(mesaSelecionada, estado);
+      } catch (apiError) {
+        // Continuar mesmo se a API falhar
+      }
+
+      if (estado === "ocupada") {
+        setEtapa("pedido");
+        setItensPedido([]);
+        setObservacoes("");
+      } else {
+        setEtapa(null);
+        setMesaSelecionada(null);
+      }
+    } catch (error) {
+      alert("Erro ao atualizar status da mesa. Tente novamente.");
+      await carregarEstadoMesas();
     }
   };
 
@@ -430,13 +480,16 @@ export default function Home() {
           try {
             await axios.post(`${API_URL}/tables`, {
               number: Number(mesaSelecionada),
+              status: "ocupada",
             });
           } catch (createErr) {
-            // Não foi possível criar mesa automaticamente
+            // Erro ao criar mesa
           }
+        } else {
+          await atualizarStatusMesaAPI(mesaSelecionada, "ocupada");
         }
       } catch (e) {
-        // Não foi possível verificar mesas
+        // Erro ao verificar/criar mesa
       }
 
       // PASSO 1: Criar o pedido (tentar diferentes formatos de payload)
@@ -543,6 +596,9 @@ export default function Home() {
         );
       }
 
+      // Garantir que a mesa continue marcada como ocupada na API
+      await atualizarStatusMesaAPI(mesaSelecionada, "ocupada");
+
       setMostrarModalSucesso(true);
     } catch (error) {
       let mensagemErro = "Erro desconhecido ao criar pedido";
@@ -589,24 +645,37 @@ export default function Home() {
     setMostrarModalConfirmacao(false);
   };
 
-  const fecharModalSucesso = () => {
+  const fecharModalSucesso = async () => {
+    // Não liberar a mesa automaticamente - ela continua ocupada até o cliente terminar
+    // O garçom pode liberar manualmente depois
     setMostrarModalSucesso(false);
     setEtapa(null);
     setMesaSelecionada(null);
     setItensPedido([]);
     setObservacoes("");
+    
+    // Recarregar estado das mesas para manter sincronizado
+    await carregarEstadoMesas();
   };
 
   const handleCancelar = () => {
     setMostrarModalCancelamento(true);
   };
 
-  const confirmarCancelamento = () => {
-    setMostrarModalCancelamento(false);
-    setEtapa(null);
-    setMesaSelecionada(null);
-    setItensPedido([]);
-    setObservacoes("");
+  const confirmarCancelamento = async () => {
+    try {
+      if (mesaSelecionada) {
+        await atualizarStatusMesaAPI(mesaSelecionada, "vazia");
+      }
+    } catch (error) {
+      // Erro ao liberar mesa
+    } finally {
+      setMostrarModalCancelamento(false);
+      setEtapa(null);
+      setMesaSelecionada(null);
+      setItensPedido([]);
+      setObservacoes("");
+    }
   };
 
   const cancelarCancelamento = () => {
