@@ -1,10 +1,12 @@
 .main {
   background-color: #d0e3c3;
   width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 2.6rem;
+  box-sizing: border-box;
 }
 
 .header {
@@ -65,12 +67,13 @@
   gap: 2rem;
   width: 100%;
   max-width: 1400px;
-  max-height: calc(100vh - 150px);
+  min-height: calc(100vh - 200px);
   justify-content: center;
   align-items: flex-start;
   padding: 2rem;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 .mesasGrid {
@@ -228,6 +231,7 @@
   flex-direction: column;
   gap: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .botaoAdicionarItem {
@@ -590,6 +594,7 @@
   gap: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   color: white;
+  box-sizing: border-box;
 }
 
 /* Modais */
@@ -1074,29 +1079,31 @@
 }
 
 @media (max-width: 1200px) {
+  .contentArea {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .mesasGrid {
-    grid-template-columns: repeat(3, 1fr);
-    max-width: 600px;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 100%;
   }
 
   .painelVazio,
   .painelLateral {
     width: 320px;
-    right: 1rem;
   }
 
   .painelPedido {
-    width: 300px;
-    right: 1rem;
+    width: 320px;
   }
 
   .painelResumo {
-    width: 280px;
-    right: 330px;
+    width: 320px;
   }
 
   .header {
-    max-width: 900px;
+    max-width: 100%;
   }
 
   /* Modal para notebooks menores */
@@ -1136,6 +1143,29 @@
 
 /* Tablets e notebooks pequenos (992px - 1199px) */
 @media (min-width: 992px) and (max-width: 1199px) {
+  .main {
+    padding: 2rem;
+  }
+
+  .contentArea {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .mesasGrid {
+    grid-template-columns: repeat(5, 1fr);
+    max-width: 100%;
+  }
+
+  .painelVazio,
+  .painelLateral,
+  .painelPedido,
+  .painelResumo {
+    width: 320px;
+  }
+
   .modalPedidoGrande {
     width: 90%;
     max-width: 900px;
@@ -1167,6 +1197,31 @@
 
 /* Tablets (768px - 991px) */
 @media (min-width: 768px) and (max-width: 991px) {
+  .main {
+    padding: 1.5rem;
+  }
+
+  .contentArea {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .mesasGrid {
+    grid-template-columns: repeat(4, 1fr);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .painelVazio,
+  .painelLateral,
+  .painelPedido,
+  .painelResumo {
+    width: 100%;
+    max-width: 600px;
+  }
+
   .modalPedidoGrande {
     width: 92%;
     max-width: 750px;
@@ -1200,6 +1255,7 @@
 @media (max-width: 768px) {
   .main {
     padding: 1rem;
+    min-height: 100vh;
   }
 
   .header {
@@ -1209,62 +1265,74 @@
   }
 
   .cores {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .contentArea {
+    flex-direction: column;
+    padding: 1rem;
+    min-height: auto;
+    gap: 1rem;
   }
 
   .mesasGrid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.75rem;
-    max-width: 400px;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
   }
 
   .mesaButton,
   .mesaButtonSelecionada {
-    padding: 1rem 0.75rem;
-    font-size: 0.85rem;
+    padding: 1rem 0.5rem;
+    font-size: 0.8rem;
+    width: 100%;
+    height: auto;
   }
 
   .mesaNumero {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .mesaValor {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .painelVazio,
   .painelLateral {
-    position: fixed;
-    right: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 100;
-    width: 250px;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    transform: none;
+    margin-top: 1rem;
   }
 
   .botaoEstado {
     padding: 1.25rem 1.5rem;
     font-size: 1.1rem;
+    width: 100%;
   }
 
   .painelPedido {
-    width: 90%;
-    max-width: 350px;
-    right: 50%;
-    transform: translate(50%, -50%);
-    max-height: 70vh;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    transform: none;
+    max-height: none;
+    margin-top: 1rem;
   }
 
   .painelResumo {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    left: 1rem;
-    top: auto;
+    position: static;
+    width: 100%;
+    max-width: 100%;
     transform: none;
-    width: auto;
-    max-height: 40vh;
+    max-height: none;
+    margin-top: 1rem;
   }
 
   .abasCategoria {
@@ -1389,6 +1457,14 @@
 }
 
 @media (max-width: 480px) {
+  .main {
+    padding: 0.75rem;
+  }
+
+  .header {
+    padding: 0.75rem;
+  }
+
   .mesasGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
@@ -1410,7 +1486,8 @@
 
   .painelVazio,
   .painelLateral {
-    width: 220px;
+    width: 100%;
+    padding: 1.5rem;
   }
 
   .botaoEstado {
@@ -1419,8 +1496,7 @@
   }
 
   .painelPedido {
-    width: 95%;
-    max-width: none;
+    width: 100%;
     padding: 1.5rem;
   }
 
@@ -1430,6 +1506,7 @@
 
   .abasCategoria {
     gap: 0.25rem;
+    justify-content: center;
   }
 
   .aba,
@@ -1452,8 +1529,9 @@
   }
 
   .painelResumo {
-    max-height: 35vh;
+    width: 100%;
     padding: 1rem;
+    max-height: none;
   }
 
   .subtitulo {
@@ -1605,5 +1683,62 @@
 
   .textareaObsModal {
     min-height: 40px;
+  }
+}
+
+/* Dispositivos móveis em paisagem */
+@media (max-width: 768px) and (orientation: landscape) {
+  .main {
+    padding: 1rem;
+  }
+
+  .header {
+    padding: 0.75rem;
+  }
+
+  .contentArea {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .mesasGrid {
+    grid-template-columns: repeat(4, 1fr);
+    width: auto;
+    max-width: 50%;
+  }
+
+  .painelVazio,
+  .painelLateral,
+  .painelPedido,
+  .painelResumo {
+    width: calc(50% - 1rem);
+    max-width: 400px;
+    max-height: calc(100vh - 160px);
+  }
+}
+
+/* Ajuste para telas muito pequenas */
+@media (max-width: 360px) {
+  .mesasGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .mesaButton,
+  .mesaButtonSelecionada {
+    padding: 0.6rem 0.4rem;
+    font-size: 0.7rem;
+    width: 100%;
+  }
+
+  .painelTitulo {
+    font-size: 1.1rem;
+  }
+
+  .aba,
+  .abaAtiva {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.7rem;
   }
 }
