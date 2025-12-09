@@ -33,7 +33,6 @@ export default function Home() {
             });
         }
 
-        // Limpa os parâmetros da URL
         if (error) {
             window.history.replaceState({}, '', '/');
         }
@@ -69,13 +68,11 @@ export default function Home() {
                 throw new Error('Resposta inválida do servidor');
             }
             
-            // Salvar no localStorage
             localStorage.setItem('token', data.token);
             localStorage.setItem('tipoUsuario', data.userExists.type);
             localStorage.setItem('userId', data.userExists.id.toString());
             localStorage.setItem('userName', data.userExists.name);
             
-            // Salvar nos cookies para o middleware
             document.cookie = `token=${data.token}; path=/; max-age=86400`;
             document.cookie = `tipoUsuario=${data.userExists.type}; path=/; max-age=86400`;
             
@@ -91,7 +88,6 @@ export default function Home() {
                     router.push("/cozinha");
                     break;
                 case 'administrador':
-                case 'admin':
                     router.push("/admin");
                     break;
                 default:

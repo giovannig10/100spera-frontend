@@ -859,14 +859,6 @@ export default function Home() {
                         className={styles.produtoCardModal}
                         onClick={() => handleAdicionarItem(produto)}
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={
-                            produto.imagem || "https://via.placeholder.com/80"
-                          }
-                          alt={produto.nome}
-                          className={styles.produtoImagemModal}
-                        />
                         <div className={styles.produtoInfoModal}>
                           <h4 className={styles.produtoNomeModal}>
                             {produto.nome}

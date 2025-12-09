@@ -1,66 +1,161 @@
-'use client';
-import { useState } from 'react';
-import styles from './page.module.css';
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import styles from "./page.module.css";
+
+const API_URL = "http://localhost:4000/100spera";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState('cardapio');
-  const [selectedCategory, setSelectedCategory] = useState('entrada');
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState(''); // 'add', 'edit', 'delete', 'description'
-  const [selectedItem, setSelectedItem] = useState(null);
-
-  const categories = [
-    { id: 'entrada', name: 'Entrada' },
-    { id: 'principal', name: 'Principal' },
-    { id: 'bebida', name: 'Bebidas' },
-    { id: 'drink', name: 'Drink' },
-    { id: 'combos', name: 'Combos' },
-  ];
-  
-  const [menuItems, setMenuItems] = useState([
-    { id: 1, nome: 'Batata Frita com Cheddar e Bacon', categoria: 'entrada', descricao: 'Deliciosa batata frita', preco: 52.00, imagem: '/images/batata.jpg' },
-    { id: 2, nome: 'Onion Rings (Anéis de Cebola)', categoria: 'entrada', descricao: 'Crocantes anéis', preco: 588.20, imagem: '/images/onion.jpg' },
-    { id: 3, nome: 'Mozzarella Sticks (Palitos de Muçarela)', categoria: 'entrada', descricao: 'Queijo empanado', preco: 577.00, imagem: '/images/mozzarella.jpg' },
-    { id: 4, nome: 'Super Wings / Chicken Wings', categoria: 'entrada', descricao: 'Asas de frango', preco: 292.00, imagem: '/images/wings.jpg' },
-    { id: 5, nome: 'Dadinhos de Tapioca', categoria: 'entrada', descricao: 'Tapioca frita', preco: 18.00, imagem: '/images/tapioca.jpg' },
-  ]);
-
-  const [employees, setEmployees] = useState([
-    { id: 1, nome: 'Giovanni Gomes', cargo: 'Administrador', codigo: '#12345' },
-    { id: 2, nome: 'Gabriela Fernanda', cargo: 'Caixa', codigo: '#67891' },
-    { id: 3, nome: 'Julia Martins', cargo: 'Cozinha', codigo: '#23456' },
-    { id: 4, nome: 'Pedro Oliveira', cargo: 'Cozinha', codigo: '#78912' },
-    { id: 5, nome: 'Vinícius Valverde', cargo: 'Garçom', codigo: '#34567' },
-    { id: 6, nome: 'Vitor Lira', cargo: 'Garçom', codigo: '#89123' },
-  ]);
-
+  const [activeTab, setActiveTab] = useState("cardapio");
+  const [categories, setCategories] = useState([]);
+  const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
-    nome: '',
-    categoria: 'entrada',
-    descricao: '',
-    preco: '',
-    imagem: '',
-    cargo: '',
-    codigo: ''
+    accessCode: "",
+    categoryId: null,
+    description: "",
+    imageUrl: "",
+    name: "",
+    price: "",
+    type: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [menuItems, setMenuItems] = useState([]);
+  const [modalType, setModalType] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [visibleCodes, setVisibleCodes] = useState({});
+  const [newResetCode, setNewResetCode] = useState(null);
 
-  const filteredMenuItems = menuItems.filter(item => item.categoria === selectedCategory);
+  const loadInitialData = async () => {
+    try {
+      setLoading(true);
+
+      const [categoriesData, dishesData, usersData] = await Promise.all([
+        fetch(`${API_URL}/categories`).then((res) => res.json()),
+        fetch(`${API_URL}/dishes`).then((res) => res.json()),
+        fetch(`${API_URL}/users`).then((res) => res.json()),
+      ]);
+
+      setCategories(categoriesData);
+      setMenuItems(dishesData);
+      setEmployees(usersData);
+
+      if (categoriesData.length > 0 && !selectedCategory) {
+        setSelectedCategory(categoriesData[0].id);
+      }
+    } catch (err) {
+      alert("Erro ao carregar dados. Verifique se o backend está rodando.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
+  const handleResetCode = async (employee) => {
+    setSelectedItem(employee);
+    setModalType("confirmReset");
+    setShowModal(true);
+  };
+
+  const confirmResetCode = async () => {
+    try {
+      const response = await fetch(
+        `${API_URL}/users/reset-code/${selectedItem.id}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erro ao resetar código");
+      }
+
+      const data = await response.json();
+      setNewResetCode(data.newAccessCode);
+      setModalType("showNewCode");
+      await loadInitialData();
+    } catch (error) {
+      console.error('Erro ao resetar código:', error);
+      alert(
+        "Erro ao resetar código de acesso. Verifique se o backend está rodando."
+      );
+      handleCloseModal();
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        alert("Código copiado para a área de transferência!");
+      })
+      .catch(err => {
+      console.error('Erro ao copiar:', err);
+        alert("Erro ao copiar código");
+      });
+  };
+
+  const toggleCodeVisibility = async (userId) => {
+    if (visibleCodes[userId]) {
+      setVisibleCodes((prev) => ({ ...prev, [userId]: null }));
+    } else {
+      try {
+        const response = await fetch(`${API_URL}/users/decrypt/${userId}`);
+        if (!response.ok) {
+          throw new Error("Endpoint não encontrado");
+        }
+        const data = await response.json();
+        setVisibleCodes((prev) => ({
+          ...prev,
+          [userId]: data.plainAccessCode,
+        }));
+      } catch (error) {
+        alert(
+          "Erro: O endpoint /users/decrypt/:id não está implementado no backend"
+        );
+      }
+    }
+  };
 
   const handleOpenModal = (type, item = null) => {
     setModalType(type);
     setSelectedItem(item);
-    if (type === 'edit' && item) {
-      setFormData(item);
+    if (type === "edit" && item) {
+      if (activeTab === "cardapio") {
+        setFormData({
+          name: item.name,
+          categoryId: item.categoryId,
+          description: item.description || "",
+          price: item.price.toString(),
+          imageUrl: item.imageUrl || "",
+        });
+      } else {
+        setFormData({
+          name: item.name,
+          type: item.type,
+          accessCode: item.accessCode,
+        });
+      }
     } else {
-      setFormData({
-        nome: '',
-        categoria: 'entrada',
-        descricao: '',
-        preco: '',
-        imagem: '',
-        cargo: '',
-        codigo: ''
-      });
+      if (activeTab === "cardapio") {
+        setFormData({
+          name: "",
+          categoryId: selectedCategory,
+          description: "",
+          price: "",
+          imageUrl: "",
+        });
+      } else {
+        setFormData({
+          name: "",
+          type: "",
+          accessCode: "",
+        });
+      }
     }
     setShowModal(true);
   };
@@ -68,89 +163,170 @@ export default function AdminPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedItem(null);
-    setModalType('');
+    setModalType("");
+    setNewResetCode(null);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (activeTab === 'cardapio') {
-      if (modalType === 'add') {
-        const newItem = {
-          ...formData,
-          id: menuItems.length + 1,
-          preco: parseFloat(formData.preco)
+
+    try {
+      if (activeTab === "cardapio") {
+        const dishData = {
+          name: formData.name,
+          categoryId: parseInt(formData.categoryId),
+          description: formData.description,
+          price: parseFloat(formData.price),
+          imageUrl: formData.imageUrl || null,
         };
-        setMenuItems([...menuItems, newItem]);
-      } else if (modalType === 'edit') {
-        setMenuItems(menuItems.map(item => 
-          item.id === selectedItem.id ? { ...formData, id: item.id } : item
-        ));
-      }
-    } else {
-      if (modalType === 'add') {
-        const newEmployee = {
-          ...formData,
-          id: employees.length + 1
+
+        if (modalType === "add") {
+          const response = await fetch(`${API_URL}/dishes`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dishData),
+          });
+          if (!response.ok) {
+            throw new Error('Erro ao criar item');
+          }
+          const newDish = await response.json();
+          setMenuItems([...menuItems, newDish]);
+        } else if (modalType === "edit") {
+          const response = await fetch(`${API_URL}/dishes/${selectedItem.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dishData),
+          });
+          if (!response.ok) {
+            throw new Error('Erro ao editar item');
+          }
+          setMenuItems(
+            menuItems.map((item) =>
+              item.id === selectedItem.id ? { ...item, ...dishData } : item
+            )
+          );
+        }
+      } else {
+        const userData = {
+          name: formData.name,
+          type: formData.type,
+          accessCode: formData.accessCode,
         };
-        setEmployees([...employees, newEmployee]);
-      } else if (modalType === 'edit') {
-        setEmployees(employees.map(emp => 
-          emp.id === selectedItem.id ? { ...formData, id: emp.id } : emp
-        ));
+
+        if (modalType === "add") {
+          const response = await fetch(`${API_URL}/users/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData),
+          });
+          if (!response.ok) {
+            const errorData = await response.text();
+            alert(`Erro ao criar funcionário: ${errorData}`);
+            return;
+          }
+          const newUser = await response.json();
+          setEmployees([...employees, newUser]);
+        } else if (modalType === "edit") {
+          const response = await fetch(`${API_URL}/users/${selectedItem.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData),
+          });
+          if (!response.ok) {
+            throw new Error('Erro ao editar funcionário');
+          }
+          setEmployees(
+            employees.map((emp) =>
+              emp.id === selectedItem.id ? { ...emp, ...userData } : emp
+            )
+          );
+        }
       }
+      handleCloseModal();
+      await loadInitialData();
+    } catch (error) {
+      alert("Erro ao salvar. Verifique o console.");
     }
-    handleCloseModal();
   };
 
-  const handleDelete = () => {
-    if (activeTab === 'cardapio') {
-      setMenuItems(menuItems.filter(item => item.id !== selectedItem.id));
-    } else {
-      setEmployees(employees.filter(emp => emp.id !== selectedItem.id));
+  const handleDelete = async () => {
+    try {
+      if (activeTab === "cardapio") {
+        await fetch(`${API_URL}/dishes/${selectedItem.id}`, {
+          method: "DELETE",
+        });
+        setMenuItems(menuItems.filter((item) => item.id !== selectedItem.id));
+      } else {
+        if (selectedItem.type.toLowerCase() === "administrador") {
+          alert("Não é possível excluir o usuário administrador!");
+          handleCloseModal();
+          return;
+        }
+        await fetch(`${API_URL}/users/${selectedItem.id}`, {
+          method: "DELETE",
+        });
+        setEmployees(employees.filter((emp) => emp.id !== selectedItem.id));
+      }
+      handleCloseModal();
+    } catch (error) {
+      alert("Erro ao excluir. Verifique o console.");
     }
-    handleCloseModal();
   };
 
   const handleOpenDescription = (item) => {
     setSelectedItem(item);
-    setModalType('description');
+    setModalType("description");
     setShowModal(true);
   };
+
+  const filteredMenuItems = menuItems
+    .filter((item) => item.categoryId === selectedCategory)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (loading) {
+    return (
+      <main className={styles.main}>
+        <div className={styles.loading}>Carregando...</div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.main}>
       <div className={styles.dashboardContainer}>
         <div className={styles.dashboard}>
-          {/* Sistema de Abas */}
           <div className={styles.titleDiv}>
-            <h1 
-              className={`${styles.title} ${activeTab === 'cardapio' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('cardapio')}
+            <h1
+              className={`${styles.title} ${activeTab === "cardapio" ? styles.activeTab : ""
+                }`}
+              onClick={() => setActiveTab("cardapio")}
             >
               Cardápio
             </h1>
-            <h1 
-              className={`${styles.title} ${activeTab === 'funcionarios' ? styles.activeTab : ''}`}
-              onClick={() => setActiveTab('funcionarios')}
+            <h1
+              className={`${styles.title} ${activeTab === "funcionarios" ? styles.activeTab : ""
+                }`}
+              onClick={() => setActiveTab("funcionarios")}
             >
               Funcionários
             </h1>
           </div>
 
-          {/* Conteúdo da Aba Cardápio */}
-          {activeTab === 'cardapio' && (
+          {activeTab === "cardapio" && (
             <>
-              {/* Filtro de Categorias com Ícones */}
               <div className={styles.categoriesContainer}>
                 {categories.map((category) => (
-                  <div 
+                  <div
                     key={category.id}
-                    className={`${styles.categoryIcon} ${selectedCategory === category.id ? styles.activeCategoryIcon : ''}`}
+                    className={`${styles.categoryIcon} ${selectedCategory === category.id
+                        ? styles.activeCategoryIcon
+                        : ""
+                      }`}
                     onClick={() => setSelectedCategory(category.id)}
                   >
                     <span className={styles.categoryName}>{category.name}</span>
@@ -158,28 +334,39 @@ export default function AdminPage() {
                 ))}
               </div>
 
-              {/* Cabeçalho da Tabela */}
               <div className={styles.tableHeader}>
                 <p className={styles.headerItem}>Nome</p>
-                <p className={styles.headerItem}>Imagem</p>
                 <p className={styles.headerItem}>Descrição</p>
                 <p className={styles.headerItem}>Preço</p>
                 <p className={styles.headerItem}>Ações</p>
               </div>
 
-              {/* Linhas da Tabela */}
               <div className={styles.tableBody}>
                 {filteredMenuItems.map((item) => (
                   <div key={item.id} className={styles.tableRow}>
-                    <p className={styles.itemText}>{item.nome}</p>
-                    <div className={styles.itemImage}>
-                      <div className={styles.imagePlaceholder}>📷</div>
-                    </div>
-                    <button className={styles.descriptionButton} onClick={() => handleOpenDescription(item)}>Ver descrição</button>
-                    <p className={styles.itemText}>R$ {item.preco.toFixed(2)}</p>
+                    <p className={styles.itemText}>{item.name}</p>
+                    <button
+                      className={styles.descriptionButton}
+                      onClick={() => handleOpenDescription(item)}
+                    >
+                      Ver descrição
+                    </button>
+                    <p className={styles.itemText}>
+                      R$ {item.price.toFixed(2)}
+                    </p>
                     <div className={styles.actionsCell}>
-                      <button className={styles.editButton} onClick={() => handleOpenModal('edit', item)}>Editar</button>
-                      <button className={styles.deleteButton} onClick={() => handleOpenModal('delete', item)}>Excluir</button>
+                      <button
+                        className={styles.editButton}
+                        onClick={() => handleOpenModal("edit", item)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleOpenModal("delete", item)}
+                      >
+                        Excluir
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -187,29 +374,58 @@ export default function AdminPage() {
             </>
           )}
 
-          {/* Conteúdo da Aba Funcionários */}
-          {activeTab === 'funcionarios' && (
+          {activeTab === "funcionarios" && (
             <>
-              {/* Cabeçalho da Tabela Funcionários */}
               <div className={styles.tableHeader}>
                 <p className={styles.headerItem}>Nome</p>
                 <p className={styles.headerItem}>Cargo</p>
-                <p className={styles.headerItem}>Id</p>
                 <p className={styles.headerItem}>Código</p>
                 <p className={styles.headerItem}>Ações</p>
               </div>
 
-              {/* Linhas da Tabela Funcionários */}
               <div className={styles.tableBody}>
                 {employees.map((employee) => (
                   <div key={employee.id} className={styles.tableRow}>
-                    <p className={styles.itemText}>{employee.nome}</p>
-                    <p className={styles.itemText}>{employee.cargo}</p>
-                    <p className={styles.itemText}>{employee.id}</p>
-                    <p className={styles.itemText}>{employee.codigo}</p>
+                    <p className={styles.itemText}>{employee.name}</p>
+                    <p className={styles.itemText}>{employee.type}</p>
+                    <div className={styles.codeCell}>
+                      <p className={styles.itemText}>
+                        {visibleCodes[employee.id] || "••••••"}
+                      </p>
+                      <button
+                        className={styles.resetCodeButton}
+                        onClick={() => handleResetCode(employee)}
+                        title="Resetar código de acesso"
+                      >
+                        👁
+                      </button>
+                    </div>
                     <div className={styles.actionsCell}>
-                      <button className={styles.editButton} onClick={() => handleOpenModal('edit', employee)}>Editar</button>
-                      <button className={styles.deleteButton} onClick={() => handleOpenModal('delete', employee)}>Excluir</button>
+                      <button
+                        className={styles.editButton}
+                        onClick={() => handleOpenModal("edit", employee)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleOpenModal("delete", employee)}
+                        disabled={
+                          employee.type.toLowerCase() === "administrador"
+                        }
+                        style={{
+                          opacity:
+                            employee.type.toLowerCase() === "administrador"
+                              ? 0.5
+                              : 1,
+                          cursor:
+                            employee.type.toLowerCase() === "administrador"
+                              ? "not-allowed"
+                              : "pointer",
+                        }}
+                      >
+                        Excluir
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -218,63 +434,154 @@ export default function AdminPage() {
           )}
         </div>
 
-        {/* Botão de Adicionar */}
-        <button className={styles.button} onClick={() => handleOpenModal('add')}>
-          <p className={styles.buttonText}>Adicionar</p> 
+        <button
+          className={styles.button}
+          onClick={() => handleOpenModal("add")}
+        >
+          <p className={styles.buttonText}>Adicionar</p>
           <span className={styles.emoji}>+</span>
         </button>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
-            
-            {/* Modal de Descrição */}
-            {modalType === 'description' && (
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button className={styles.closeButton} onClick={handleCloseModal}>
+              ×
+            </button>
+
+            {modalType === "description" && (
               <div className={styles.descriptionModal}>
                 <h2 className={styles.modalTitle}>Descrição</h2>
                 <div className={styles.descriptionContent}>
-                  <p className={styles.descriptionText}>{selectedItem?.descricao}</p>
+                  <p className={styles.descriptionText}>
+                    {selectedItem?.description}
+                  </p>
                 </div>
                 <div className={styles.descriptionActions}>
-                  <button className={styles.closeDescriptionButton} onClick={handleCloseModal}>
+                  <button
+                    className={styles.closeDescriptionButton}
+                    onClick={handleCloseModal}
+                  >
                     Fechar
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Modal de Exclusão */}
-            {modalType === 'delete' && (
+            {modalType === "delete" && (
               <div className={styles.deleteModal}>
                 <h2 className={styles.modalTitle}>Confirmar Exclusão</h2>
                 <p className={styles.deleteMessage}>
-                  Tem certeza que deseja excluir <strong>{selectedItem?.nome}</strong>?
+                  Tem certeza que deseja excluir{" "}
+                  <strong>{selectedItem?.name}</strong>?
                 </p>
                 <div className={styles.deleteActions}>
-                  <button className={styles.cancelButton} onClick={handleCloseModal}>Cancelar</button>
-                  <button className={styles.confirmDeleteButton} onClick={handleDelete}>Excluir</button>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={handleCloseModal}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    className={styles.confirmDeleteButton}
+                    onClick={handleDelete}
+                  >
+                    Excluir
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* Modal de Adicionar/Editar */}
-            {(modalType === 'add' || modalType === 'edit') && (
+            {modalType === "confirmReset" && (
+              <div className={styles.resetModal}>
+                <h2 className={styles.modalTitle}>
+                  ⚠️ Resetar Código de Acesso
+                </h2>
+                <p className={styles.resetMessage}>
+                  Você está prestes a resetar o código de acesso de{" "}
+                  <strong>{selectedItem?.name}</strong>.
+                </p>
+                <p className={styles.resetWarning}>
+                  ⚠️ O código antigo será invalidado e o funcionário não poderá
+                  mais usá-lo para acessar o sistema.
+                </p>
+                <p className={styles.resetInfo}>
+                  Um novo código será gerado e você deverá informá-lo ao
+                  funcionário.
+                </p>
+                <div className={styles.resetActions}>
+                  <button
+                    className={styles.cancelButton}
+                    onClick={handleCloseModal}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    className={styles.confirmResetButton}
+                    onClick={confirmResetCode}
+                  >
+                    Confirmar Reset
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {modalType === "showNewCode" && (
+              <div className={styles.newCodeModal}>
+                <h2 className={styles.modalTitle}>
+                  ✅ Código Resetado com Sucesso!
+                </h2>
+                <p className={styles.newCodeMessage}>
+                  Novo código de acesso para{" "}
+                  <strong>{selectedItem?.name}</strong>:
+                </p>
+                <div className={styles.codeDisplay}>
+                  <span className={styles.newCode}>{newResetCode}</span>
+                  <button
+                    className={styles.copyButton}
+                    onClick={() => copyToClipboard(newResetCode)}
+                    title="Copiar código"
+                  >
+                    📋 Copiar
+                  </button>
+                </div>
+                <p className={styles.codeWarning}>
+                  ⚠️ <strong>IMPORTANTE:</strong> Anote ou copie este código
+                  agora! Você precisará informá-lo ao funcionário.
+                </p>
+                <p className={styles.codeInfo}>
+                  O código antigo não funcionará mais.
+                </p>
+                <div className={styles.newCodeActions}>
+                  <button
+                    className={styles.closeNewCodeButton}
+                    onClick={handleCloseModal}
+                  >
+                    Entendi, Fechar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {(modalType === "add" || modalType === "edit") && (
               <form onSubmit={handleSubmit} className={styles.form}>
                 <h2 className={styles.modalTitle}>
-                  {modalType === 'add' ? 'Adicionar' : 'Editar'} {activeTab === 'cardapio' ? 'Item' : 'Funcionário'}
+                  {modalType === "add" ? "Adicionar" : "Editar"}{" "}
+                  {activeTab === "cardapio" ? "Item" : "Funcionário"}
                 </h2>
 
-                {activeTab === 'cardapio' ? (
+                {activeTab === "cardapio" ? (
                   <>
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Nome do Item</label>
                       <input
                         type="text"
-                        name="nome"
-                        value={formData.nome}
+                        name="name"
+                        value={formData.name}
                         onChange={handleInputChange}
                         className={styles.input}
                         required
@@ -284,14 +591,16 @@ export default function AdminPage() {
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Categoria</label>
                       <select
-                        name="categoria"
-                        value={formData.categoria}
+                        name="categoryId"
+                        value={formData.categoryId}
                         onChange={handleInputChange}
                         className={styles.input}
                         required
                       >
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        {categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
                         ))}
                       </select>
                     </div>
@@ -299,8 +608,8 @@ export default function AdminPage() {
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Descrição</label>
                       <textarea
-                        name="descricao"
-                        value={formData.descricao}
+                        name="description"
+                        value={formData.description}
                         onChange={handleInputChange}
                         className={styles.textarea}
                         rows="3"
@@ -312,25 +621,13 @@ export default function AdminPage() {
                       <label className={styles.label}>Preço (R$)</label>
                       <input
                         type="number"
-                        name="preco"
-                        value={formData.preco}
+                        name="price"
+                        value={formData.price}
                         onChange={handleInputChange}
                         className={styles.input}
                         step="0.01"
                         min="0"
                         required
-                      />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <label className={styles.label}>URL da Imagem</label>
-                      <input
-                        type="text"
-                        name="imagem"
-                        value={formData.imagem}
-                        onChange={handleInputChange}
-                        className={styles.input}
-                        placeholder="/images/..."
                       />
                     </div>
                   </>
@@ -340,8 +637,8 @@ export default function AdminPage() {
                       <label className={styles.label}>Nome</label>
                       <input
                         type="text"
-                        name="nome"
-                        value={formData.nome}
+                        name="name"
+                        value={formData.name}
                         onChange={handleInputChange}
                         className={styles.input}
                         required
@@ -350,22 +647,27 @@ export default function AdminPage() {
 
                     <div className={styles.formGroup}>
                       <label className={styles.label}>Cargo</label>
-                      <input
-                        type="text"
-                        name="cargo"
-                        value={formData.cargo}
+                      <select
+                        name="type"
+                        value={formData.type}
                         onChange={handleInputChange}
                         className={styles.input}
                         required
-                      />
+                      >
+                        <option value="">Selecione um cargo</option>
+                        <option value="administrador">Administrador</option>
+                        <option value="caixa">Caixa</option>
+                        <option value="garcom">Garçom</option>
+                        <option value="cozinha">Cozinha</option>
+                      </select>
                     </div>
 
                     <div className={styles.formGroup}>
-                      <label className={styles.label}>Código</label>
+                      <label className={styles.label}>Código de Acesso</label>
                       <input
                         type="text"
-                        name="codigo"
-                        value={formData.codigo}
+                        name="accessCode"
+                        value={formData.accessCode}
                         onChange={handleInputChange}
                         className={styles.input}
                         placeholder="#12345"
@@ -376,11 +678,15 @@ export default function AdminPage() {
                 )}
 
                 <div className={styles.formActions}>
-                  <button type="button" className={styles.cancelButton} onClick={handleCloseModal}>
+                  <button
+                    type="button"
+                    className={styles.cancelButton}
+                    onClick={handleCloseModal}
+                  >
                     Cancelar
                   </button>
                   <button type="submit" className={styles.submitButton}>
-                    {modalType === 'add' ? 'Adicionar' : 'Salvar'}
+                    {modalType === "add" ? "Adicionar" : "Salvar"}
                   </button>
                 </div>
               </form>
